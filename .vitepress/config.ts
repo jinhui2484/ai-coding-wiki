@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
+  base: '/claude-docs/',
   lang: 'zh-CN',
   title: 'Claude Code 知识库',
   description: '基于 Anthropic 官方文档整理的 Claude Code 实用指南',
