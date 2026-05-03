@@ -13,13 +13,18 @@ export default withMermaid(defineConfig({
 
     nav: [
       { text: '首页', link: '/' },
-      { text: 'CLI 指南', link: '/guide/commands' },
       {
-        text: 'Agent 系列',
+        text: '知识模块',
         items: [
-          { text: 'Agent 入门', link: '/agent/intro' },
-          { text: '创建 Agent', link: '/agent/create' },
-          { text: '多 Agent 协调', link: '/agent/multi-agent' },
+          { text: '完整命令手册', link: '/guide/commands' },
+          {
+            text: 'Agent 系列',
+            items: [
+              { text: 'Agent 入门', link: '/agent/intro' },
+              { text: '创建 Agent', link: '/agent/create' },
+              { text: '多 Agent 协调', link: '/agent/multi-agent' },
+            ]
+          },
         ]
       }
     ],

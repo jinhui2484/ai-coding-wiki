@@ -44,6 +44,26 @@
   color: var(--vp-c-brand-1) !important;
 }
 
+/* 导航下拉菜单：分组标题深色、子项浅色 */
+.VPMenuGroup .title {
+  color: #111 !important;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.dark .VPMenuGroup .title {
+  color: #fff !important;
+}
+
+.VPMenuItem .text {
+  color: #888 !important;
+  font-weight: 400;
+}
+
+.VPMenuItem:hover .text {
+  color: var(--vp-c-brand-1) !important;
+}
+
 /* 搜索高亮 */
 .vp-doc mark {
   background-color: rgba(217, 119, 87, 0.2);
