@@ -21,15 +21,13 @@
 
 **官方原则：只在更简单的方案明确不够用时，才引入多 Agent 复杂度。**
 
-### 适合场景
+**适合场景：**
+- 任务可以拆成互相独立的子任务并行完成
+- 不同部分需要专业化处理（前端/后端/测试分别由专家处理）
+- 需要互相 review 和验证（一个写，另一个审）
+- 任务规模超过单个 Agent 的上下文窗口
 
-- 任务可以拆成**互相独立的子任务**并行完成
-- 不同部分需要**专业化处理**（前端/后端/测试分别由专家处理）
-- 需要**互相 review 和验证**（一个写，另一个审）
-- 任务规模超过**单个 Agent 的上下文窗口**
-
-### 不适合场景
-
+**不适合场景：**
 - 步骤严格串行、有强依赖
 - 简单问答或一次性小任务
 - 预算有限（多 Agent 成本线性增长）
@@ -38,72 +36,77 @@
 
 ## 二、三种 Agent 的本质区别
 
-```
-普通 Agent（单体）
-┌────────────────────────────────┐
-│  你 ←→ Claude                  │
-│        ↕                       │
-│      Tools（读文件/跑命令等）    │
-└────────────────────────────────┘
-一个 Claude，自己做完所有事
+### 普通 Agent（单体）
 
-
-Subagent（专职工作者）
-┌────────────────────────────────────────────────┐
-│  你 ←→ 主 Claude                               │
-│          │                                     │
-│          ├──► 子 Claude A（做完 → 只返回结果）  │
-│          ├──► 子 Claude B（做完 → 只返回结果）  │
-│          └──► 子 Claude C（做完 → 只返回结果）  │
-└────────────────────────────────────────────────┘
-主 Claude 派专职 Claude 干活，子 Claude 只向主 Claude 汇报
-
-
-Agent Team（协作团队）
-┌──────────────────────────────────────────────────────┐
-│  你 ←→ Lead（队长）                                   │
-│          │                                           │
-│          │    共享任务列表                            │
-│          ├──► 队友 A ◄──消息──► 队友 B               │
-│          │        ↕                   ↕              │
-│          └──► 队友 C ◄──消息──────────┘              │
-└──────────────────────────────────────────────────────┘
-每个队友独立运行，可以直接互发消息，你也能直接跟某个队友说话
+```mermaid
+graph LR
+    U["👤 你"] <--> M["🤖 Claude"]
+    M <--> T["🔧 Tools"]
+    style M fill:#e3f2fd,stroke:#1976d2
 ```
 
-### 官方对比表
+一个 Claude，自己做完所有事。
 
-| | **普通 Agent** | **Subagent** | **Agent Team** |
-|---|---|---|---|
-| **是什么** | 单个 Claude 实例，有工具，能循环推进任务 | 在主 Agent 内部派生的专职 Claude | 多个完全独立的 Claude 实例组成的团队 |
-| **上下文** | 单一共享上下文 | 独立上下文，只把结果返回给主 Agent | 每个队友独立上下文，完全隔离 |
-| **通信** | 你和它直接对话 | 子 Agent 只向主 Agent 单向汇报 | 队友之间可直接互发消息，你也能直接联系某个队友 |
-| **协调方式** | 自己决定所有步骤 | 主 Agent 管理所有工作分配 | 共享任务列表 + 自主认领 + Lead 综合 |
-| **Token 成本** | 最低 | 中等 | 最高 |
-| **适合** | 单一连贯任务 | 有侧任务会污染主上下文；反复用同类工作者 | 需要讨论、互相挑战、协作的复杂工作 |
+### Subagent（专职工作者）
+
+```mermaid
+graph TD
+    U["👤 你"] <--> L["🤖 主 Claude"]
+    L --> A["子 Claude A<br/>做完 → 只返回结果"]
+    L --> B["子 Claude B<br/>做完 → 只返回结果"]
+    L --> C["子 Claude C<br/>做完 → 只返回结果"]
+    style L fill:#e3f2fd,stroke:#1976d2
+    style A fill:#f3e5f5,stroke:#7b1fa2
+    style B fill:#f3e5f5,stroke:#7b1fa2
+    style C fill:#f3e5f5,stroke:#7b1fa2
+```
+
+主 Claude 派专职 Claude 干活，子 Claude 只向主 Claude 汇报。
+
+### Agent Team（协作团队）
+
+```mermaid
+graph TD
+    U["👤 你"] <--> L["👑 Lead（队长）"]
+    L <--> A["🤖 队友 A"]
+    L <--> B["🤖 队友 B"]
+    L <--> C["🤖 队友 C"]
+    A <--> B
+    B <--> C
+    U -.->|"可直接联系"| A
+    style L fill:#fff9c4,stroke:#fbc02d
+```
+
+每个队友独立运行，可以直接互发消息，你也能直接跟某个队友说话。
+
+### 三种模式对比
+
+**普通 Agent**
+- 上下文：单一共享上下文
+- 通信：你和它直接对话
+- 协调：自己决定所有步骤
+- 成本：最低
+- 适合：单一连贯任务
+
+**Subagent**
+- 上下文：独立上下文，只把结果返回给主 Agent
+- 通信：子 Agent 只向主 Agent 单向汇报
+- 协调：主 Agent 管理所有工作分配
+- 成本：中等
+- 适合：有侧任务会污染主上下文；反复用同类工作者
+
+**Agent Team**
+- 上下文：每个队友独立上下文，完全隔离
+- 通信：队友之间可直接互发消息，你也能直接联系某个队友
+- 协调：共享任务列表 + 自主认领 + Lead 综合
+- 成本：最高
+- 适合：需要讨论、互相挑战、协作的复杂工作
 
 ---
 
 ## 三、普通 Agent：基础单体
 
 普通 Agent 就是你平时用的 Claude Code，有工具、会循环推进任务直到完成。
-
-### 工作原理（Agentic Loop）
-
-```
-你：帮我修复这个 bug
-
-Claude 思考：我需要先看代码
-    └── 调用 Read 工具 → 读到文件内容
-Claude 思考：找到 bug 了，在第 42 行
-    └── 调用 Edit 工具 → 修改代码
-Claude 思考：改完了，跑一下测试验证
-    └── 调用 Bash 工具 → 跑测试
-Claude 思考：测试通过，任务完成
-    └── stop_reason: "end_turn"
-
-Claude：已修复，测试通过。
-```
 
 **适合：** 单一连贯任务、上下文不超窗口限制、没有需要专业化处理的子任务
 
@@ -113,7 +116,7 @@ Claude：已修复，测试通过。
 
 ### 官方定义
 
-> Subagents are specialized AI assistants that handle specific types of tasks. Use one when **a side task would flood your main conversation** with search results, logs, or file contents you won't reference again.
+> Use one when **a side task would flood your main conversation** with search results, logs, or file contents you won't reference again.
 
 两个使用时机：
 1. **侧任务会污染主上下文**：比如搜索 100 个文件，结果不需要留在主对话里
@@ -121,17 +124,14 @@ Claude：已修复，测试通过。
 
 ### 上下文隔离机制
 
-```
-主 Agent（上下文：完整对话历史）
-    │
-    │  "去帮我分析这些文件"
-    ▼
-子 Agent（独立上下文：只有任务描述）
-    │   读文件、搜索、分析...（大量中间过程）
-    │
-    │  "分析完了，结论是：xxx"（只返回摘要）
-    ▼
-主 Agent（上下文：+摘要，不加中间过程）
+```mermaid
+flowchart TD
+    M["主 Agent<br/>（上下文：完整对话历史）"]
+    S["子 Agent<br/>（独立上下文：只有任务描述）<br/>读文件、搜索、分析...大量中间过程"]
+    R["主 Agent<br/>（上下文：+摘要，不加中间过程）"]
+    M -->|"去帮我分析这些文件"| S
+    S -->|"分析完了，结论是：xxx（只返回摘要）"| R
+    style S fill:#f3e5f5,stroke:#7b1fa2
 ```
 
 **关键：** 子 Agent 执行过程中产生的大量内容不会进入主 Agent 的上下文，这是保护主上下文的核心机制。
@@ -171,15 +171,8 @@ maxTurns: 20
 
 ### 前台 vs 后台
 
-```
-前台（默认）：
-  主 Agent 等子 Agent 完成才继续
-  → 适合：子 Agent 的结果是主 Agent 下一步的输入
-
-后台（background: true）：
-  主 Agent 继续响应你，子 Agent 并发执行
-  → 适合：子 Agent 任务完全独立，不影响主流程
-```
+- **前台（默认）** — 主 Agent 等子 Agent 完成才继续，适合子 Agent 的结果是主 Agent 下一步输入的情况
+- **后台（`background: true`）** — 主 Agent 继续响应你，子 Agent 并发执行，适合完全独立、不影响主流程的任务
 
 ---
 
@@ -191,71 +184,61 @@ maxTurns: 20
 >
 > Unlike subagents, **you can also interact with individual teammates directly** without going through the lead.
 
-### Agent Team 的四个组成部分
+### 四个组成部分
 
-#### Team Lead（队长）
+**Team Lead（队长）**
+- 职责：创建团队、分配任务、监控进度、综合结果
+- 特点：就是你当前的主 Claude Code 会话，拥有最完整的上下文
 
-职责：创建团队、分配任务、监控进度、综合结果
-特点：就是你当前的主 Claude Code 会话，拥有最完整的上下文
+**Teammates（队友）**
+- 职责：领取任务、独立执行、通信协作、标记完成
+- 特点：每个队友是独立的 Claude Code 实例，有独立上下文；加载项目的 CLAUDE.md 和 MCP，但**不继承 Lead 的对话历史**；给队友的任务描述**必须自包含**
 
-#### Teammates（队友）
+**Task List（共享任务列表）**
 
-职责：领取任务、独立执行、通信协作、标记完成
-特点：
-- 每个队友是独立的 Claude Code 实例，有独立上下文
-- 加载项目的 CLAUDE.md 和 MCP，但**不继承 Lead 的对话历史**
-- 给队友的任务描述**必须自包含**
-
-#### Task List（共享任务列表）
-
-> Tasks have three states: **pending, in progress, and completed**.
-> Tasks can also **depend on other tasks**.
-> Task claiming uses **file locking** to prevent race conditions.
-
-```
-任务状态流转：
-
-pending ──（无依赖或依赖完成）──► in_progress ──► completed
-   │
-   └── 有未完成的依赖任务 → 无法被认领（自动等待）
+```mermaid
+stateDiagram-v2
+    [*] --> pending
+    pending --> in_progress : 无依赖或依赖已完成
+    in_progress --> completed : 执行完毕
+    pending --> pending : 有未完成的依赖任务（自动等待）
 ```
 
 任务认领方式：
 - **Lead 显式分配**：告诉 Lead 把哪个任务给哪个队友
 - **队友自主认领**：完成当前任务后，自动认领下一个可用任务
 
-#### Mailbox（消息系统）
+**Mailbox（消息系统）**
 
-```
-Lead 发消息给 队友A：
-  Lead → mailbox/teammate-a → 队友A 收到
-
-队友A 发消息给 队友B：
-  队友A → mailbox/teammate-b → 队友B 收到
-
-队友完成任务时自动通知 Lead，Lead 不需要轮询检查
+```mermaid
+graph LR
+    L["Lead"] -->|"mailbox/teammate-a"| A["队友 A"]
+    A -->|"mailbox/teammate-b"| B["队友 B"]
+    A -->|"完成通知"| L
+    style L fill:#fff9c4,stroke:#fbc02d
 ```
 
 ### Subagent vs Agent Team 通信差异
 
-```
-Subagent（单向汇报）：
-  主 Agent
-    ├──► 子 Agent A ─────────────► 主 Agent（只返回结果）
-    ├──► 子 Agent B ─────────────► 主 Agent（只返回结果）
-    子 Agent A 和 B 之间：无法通信
-
-Agent Team（双向通信）：
-  Lead
-    ├──► 队友 A ◄──────────────► 队友 B（可直接对话）
-    你 ◄──────────────────────────── 你也能直接找队友 A 说话
+```mermaid
+graph LR
+    subgraph sub ["Subagent — 单向汇报"]
+        M1["主 Agent"] --> SA["子 Agent A"]
+        M1 --> SB["子 Agent B"]
+        SA -->|"只返回结果"| M1
+        SB -->|"只返回结果"| M1
+    end
+    subgraph team ["Agent Team — 双向通信"]
+        L["Lead"] <--> TA["队友 A"]
+        L <--> TB["队友 B"]
+        TA <--> TB
+    end
 ```
 
 ### 两种显示模式
 
-**In-process 模式**（默认）：所有队友在主终端同一界面，用 `Shift+Down` 切换
-
-**Split panes 模式**（需要 tmux 或 iTerm2）：每个队友独占一个窗格，可同时看到所有队友实时进度
+- **In-process 模式**（默认）：所有队友在主终端同一界面，用 `Shift+Down` 切换
+- **Split panes 模式**（需要 tmux 或 iTerm2）：每个队友独占一个窗格，可同时看到所有队友实时进度
 
 ---
 
@@ -265,29 +248,30 @@ Agent Team（双向通信）：
 
 ### 模式 1：Orchestrator-Workers（最常用）⭐
 
-```
-Orchestrator（编排者）
-    ├── 分析整体任务
-    ├── 动态决定派几个 Worker、每个做什么
-    │
-    ├──► Worker A：负责部分 X → 完成汇报
-    ├──► Worker B：负责部分 Y → 完成汇报
-    └──► Worker C：负责部分 Z → 完成汇报
-         │
-         └── Orchestrator 汇总 → 最终输出
+```mermaid
+graph TD
+    O["🎯 Orchestrator<br/>分析任务，动态决定分配"]
+    A["Worker A<br/>负责部分 X"]
+    B["Worker B<br/>负责部分 Y"]
+    C["Worker C<br/>负责部分 Z"]
+    R["📋 汇总输出"]
+    O --> A & B & C
+    A & B & C --> R
+    style O fill:#fff9c4,stroke:#fbc02d
+    style R fill:#e8f5e9,stroke:#4caf50
 ```
 
-Orchestrator 不执行具体工作，只负责分解和协调。Workers 专注执行，不管全局。
-
-**适合：** 功能开发、代码重构、分析大型代码库
+Orchestrator 不执行具体工作，只负责分解和协调。**适合：** 功能开发、代码重构、分析大型代码库
 
 ### 模式 2：Parallelization（并行）
 
-```
-主 Agent 拆任务
-    ├──► 子任务 A ─┐
-    ├──► 子任务 B ─┼──► 全部完成 ──► 汇总
-    └──► 子任务 C ─┘
+```mermaid
+graph LR
+    S["主 Agent<br/>拆任务"] --> A["子任务 A"]
+    S --> B["子任务 B"]
+    S --> C["子任务 C"]
+    A & B & C --> R["汇总"]
+    style R fill:#e8f5e9,stroke:#4caf50
 ```
 
 > 官方数据：子 Agent 内部同时使用 3+ 个工具并行，可减少 **90%** 执行时间。
@@ -296,34 +280,36 @@ Orchestrator 不执行具体工作，只负责分解和协调。Workers 专注�
 
 ### 模式 3：Prompt Chaining（链式）
 
+```mermaid
+graph LR
+    A["任务 A"] -->|"完成"| V{"质量检查"}
+    V -->|"达标"| B["任务 B"] -->|"完成"| C["任务 C"] --> R["最终结果"]
+    V -->|"不达标"| A
+    style R fill:#e8f5e9,stroke:#4caf50
 ```
-任务 A ──完成──► 任务 B ──完成──► 任务 C ──► 最终结果
-         ↑
-    [可加验证关卡：质量不达标则重做]
-```
-
-每步结果是下一步的输入，可以在关键节点加质量检查。
 
 **适合：** 架构分析 → 实现 → 测试（有严格顺序依赖）
 
 ### 模式 4：Routing（路由）
 
-```
-输入 ──► 分类 Agent ──► Agent A（处理类型1）
-                    ├──► Agent B（处理类型2）
-                    └──► Agent C（处理类型3）
+```mermaid
+graph LR
+    I["输入"] --> R["分类 Agent"]
+    R --> A["Agent A<br/>处理类型 1"]
+    R --> B["Agent B<br/>处理类型 2"]
+    R --> C["Agent C<br/>处理类型 3"]
 ```
 
 **适合：** 不同类型的 bug 用不同专家处理，不同语言用不同代码生成器
 
 ### 模式 5：Evaluator-Optimizer（评估 + 优化循环）
 
-```
-Generator ──► 输出 ──► Evaluator（评分 + 反馈）
-    ↑                         │
-    └──── 不达标则继续优化 ◄──┘
-                              │
-                         达标 → 输出
+```mermaid
+graph LR
+    G["Generator<br/>生成输出"] --> E{"Evaluator<br/>评分 + 反馈"}
+    E -->|"不达标，继续优化"| G
+    E -->|"达标"| R["✅ 最终输出"]
+    style R fill:#e8f5e9,stroke:#4caf50
 ```
 
 **适合：** 代码质量要求高、需要多轮迭代改进的场景
@@ -334,28 +320,22 @@ Generator ──► 输出 ──► Evaluator（评分 + 反馈）
 
 **任务：** 给 Wyze 插件新增"设备分组"功能，包含架构分析、代码实现、单测编写、代码审查四个环节。
 
-### 方案设计
+### 任务依赖关系
 
-```
-如果用单 Agent 串行：
-架构分析 → 代码实现 → 单测 → 审查
-（全程一个 Claude 做，上下文越来越重）
-
-用多 Agent 并行：
-架构分析 → 代码实现
-                └──►（同时）单测编写
-         → 审查
-（更快，每个 Agent 专注自己的领域，上下文干净）
-```
-
-依赖关系：
-
-```
-架构分析（必须第一个做）
-    ↓
-代码实现（依赖架构方案）
-    ├──► 单测编写（可与实现并行）
-    └──► 代码审查（等实现和测试都完成）
+```mermaid
+graph TD
+    AR["🔵 architect<br/>架构分析（第一步）"]
+    IM["🟢 implementer<br/>代码实现"]
+    TW["🟡 test-writer<br/>单测编写（可与实现并行）"]
+    RV["🔴 reviewer<br/>代码审查（最后）"]
+    AR --> IM
+    IM --> RV
+    IM --> TW
+    TW --> RV
+    style AR fill:#e3f2fd,stroke:#1976d2
+    style IM fill:#e8f5e9,stroke:#388e3c
+    style TW fill:#fff9c4,stroke:#fbc02d
+    style RV fill:#fce4ec,stroke:#d32f2f
 ```
 
 ### 四个专职 Subagent 配置
@@ -470,28 +450,17 @@ color: red
 - 魔法数字或魔法字符串
 ```
 
-### 执行流程
+### 执行时间线
 
-```
-t=0   Lead 分析任务结构，建任务列表
-      │
-      ├──► architect 开始
-      │    读代码 → 分析结构 → 写方案到 .claude/device-group-plan.md
-      │
-t=20  architect 完成，通知 Lead
-      │
-      ├──► implementer 开始（依赖 architect 完成）
-      │    读方案 → 逐文件实现
-      │
-      ├──► test-writer 并行（与 implementer 重叠）
-      │    等 implementer 每完成一个文件立即写测试
-      │
-t=70  两者完成
-      │
-      ├──► reviewer 开始（依赖前两者完成）
-      │    输出三档 review 报告
-      │
-t=90  Lead 汇总 → 最终报告
+```mermaid
+gantt
+    dateFormat mm
+    axisFormat %M min
+    section 执行流程
+    architect（架构分析）    :a1, 00, 20m
+    implementer（代码实现）  :a2, after a1, 50m
+    test-writer（单测编写）  :a3, after a1, 50m
+    reviewer（代码审查）     :a4, after a2, 20m
 ```
 
 ### 过程中如何监控
@@ -514,82 +483,64 @@ t=90  Lead 汇总 → 最终报告
 
 ## 八、Subagent 完整字段说明
 
-| 字段 | 必填 | 官方说明 | 建议 |
-|------|------|----------|------|
-| `name` | ✅ | 唯一标识，小写字母+短横线 | 见名知意，如 `swift-analyzer` |
-| `description` | ✅ | Claude 据此决定何时调用 | **写具体触发场景，最重要的字段** |
-| `tools` | ❌ | 允许的工具列表，不填则继承全部 | 只给必要工具，遵循最小权限 |
-| `disallowedTools` | ❌ | 强制禁用的工具 | 确保只读 Agent 不能写文件 |
-| `model` | ❌ | 模型选择，默认 `inherit` | 轻量任务用 `haiku`，复杂推理用 `sonnet` |
-| `permissionMode` | ❌ | `default`/`acceptEdits`/`auto`/`bypassPermissions` | 一般保持 `default` |
-| `maxTurns` | ❌ | 最大执行轮次 | **生产环境必填**，建议 15-30 |
-| `skills` | ❌ | 预加载的 Skills | Subagent 不继承父会话的 Skills，需手动指定 |
-| `mcpServers` | ❌ | 可用的 MCP 服务器 | 引用已配置的服务器名，或内联定义 |
-| `hooks` | ❌ | 生命周期钩子（PreToolUse / PostToolUse / Stop 等） | 用于日志、拦截危险操作 |
-| `memory` | ❌ | 持久记忆范围：`user`/`project`/`local` | 需要跨会话学习时开启 |
-| `background` | ❌ | `true` 表示始终后台运行 | 独立任务设 `true` 不阻塞主对话 |
-| `effort` | ❌ | 覆盖 effort 级别：`low`/`medium`/`high`/`xhigh`/`max` | 简单任务降低节省成本 |
-| `isolation` | ❌ | `worktree`：在隔离的 git worktree 里运行 | 有写操作风险时使用 |
-| `color` | ❌ | 显示颜色（`red`/`blue`/`green` 等 8 色） | 多个 Agent 运行时便于区分 |
-| `initialPrompt` | ❌ | 用 `--agent` 启动时自动发送的第一条消息 | 设置 Agent 启动时的默认任务 |
+- **`name`** 必填 — 唯一标识，小写字母+短横线，如 `swift-analyzer`
+- **`description`** 必填 — Claude 据此决定何时调用，**写具体触发场景，最重要的字段**
+- **`tools`** 可选 — 允许的工具列表，不填则继承全部，只给必要工具
+- **`disallowedTools`** 可选 — 强制禁用的工具，确保只读 Agent 不能写文件
+- **`model`** 可选 — 默认 `inherit`，轻量任务用 `haiku`，复杂推理用 `sonnet`
+- **`permissionMode`** 可选 — `default` / `acceptEdits` / `auto` / `bypassPermissions`，一般保持 `default`
+- **`maxTurns`** 可选 — 最大执行轮次，**生产环境必填**，建议 15–30
+- **`skills`** 可选 — 预加载的 Skills，Subagent 不继承父会话的 Skills，需手动指定
+- **`mcpServers`** 可选 — 可用的 MCP 服务器
+- **`hooks`** 可选 — 生命周期钩子（PreToolUse / PostToolUse / Stop），用于日志、拦截危险操作
+- **`memory`** 可选 — 持久记忆范围：`user` / `project` / `local`
+- **`background`** 可选 — `true` 表示始终后台运行，独立任务不阻塞主对话
+- **`effort`** 可选 — 覆盖 effort 级别：`low` / `medium` / `high` / `xhigh` / `max`
+- **`isolation`** 可选 — `worktree`，在隔离的 git worktree 里运行，有写操作风险时使用
+- **`color`** 可选 — 显示颜色（`red` / `blue` / `green` 等 8 色），多个 Agent 运行时便于区分
+- **`initialPrompt`** 可选 — 用 `--agent` 启动时自动发送的第一条消息
 
 ---
 
 ## 九、最佳实践
 
-**关于团队规模**
-> 从 **3-5 个队友**开始。每增加一个队友，token 成本线性增长，协调开销也增加。
-
-**关于任务粒度**
-> 每个队友分配 **5-6 个任务**最优，任务应该是"能产出清晰交付物的自包含单元"。
-
-**关于上下文传递**
-> 队友加载项目上下文（CLAUDE.md、MCP、Skills），但**不加载 Lead 的对话历史**。给队友的任务描述必须自包含，不能依赖 Lead 的上下文。
-
-**关于文件冲突**
-> 每个队友应该**拥有不同的文件集合**，避免同时写同一个文件。
-
-**关于启动顺序**
-> 先从"只读、边界清晰"的研究/review 任务开始，不要上来就让多个 Agent 同时写代码。
+- **团队规模** — 从 3–5 个队友开始，每增加一个队友 token 成本线性增长
+- **任务粒度** — 每个队友分配 5–6 个任务最优，任务应该是"能产出清晰交付物的自包含单元"
+- **上下文传递** — 队友不加载 Lead 的对话历史，给队友的任务描述必须自包含
+- **文件冲突** — 每个队友应该拥有不同的文件集合，避免同时写同一个文件
+- **启动顺序** — 先从"只读、边界清晰"的研究/review 任务开始，不要上来就让多个 Agent 同时写代码
 
 ---
 
 ## 十、已知限制
 
-| 限制 | 说明 |
-|------|------|
-| 无法恢复 in-process 队友 | `/resume` 和 `/rewind` 不会恢复 in-process 模式的队友 |
-| 任务状态可能滞后 | 队友有时忘记标记任务完成，会阻塞有依赖关系的后续任务 |
-| 关闭较慢 | 队友会等当前请求完成才关闭 |
-| 每个 Session 只能有一个团队 | Lead 一次只能管理一个团队 |
-| 队友不能再建团队 | 不支持嵌套团队 |
-| Split panes 需要 tmux 或 iTerm2 | 默认 in-process 模式无此限制 |
+- **无法恢复 in-process 队友** — `/resume` 和 `/rewind` 不会恢复 in-process 模式的队友
+- **任务状态可能滞后** — 队友有时忘记标记任务完成，会阻塞有依赖关系的后续任务
+- **关闭较慢** — 队友会等当前请求完成才关闭
+- **每个 Session 只能有一个团队** — Lead 一次只能管理一个团队
+- **队友不能再建团队** — 不支持嵌套团队
+- **Split panes 需要 tmux 或 iTerm2** — 默认 in-process 模式无此限制
 
 ---
 
 ## 十一、选择指南
 
+```mermaid
+flowchart TD
+    Q{你的任务是什么？}
+    Q -->|"单一连贯任务，不需要并行"| A["✅ 普通 Agent<br/>默认就是，无需配置"]
+    Q -->|"侧任务会产生大量中间数据"| B["✅ Subagent<br/>保护主上下文，只传回摘要"]
+    Q -->|"反复需要同类专职工作者"| C["✅ Subagent<br/>固化为配置文件，一次配置反复用"]
+    Q -->|"任务可以拆成独立子任务并行"| D["✅ 多个 Subagent 并行<br/>background: true"]
+    Q -->|"需要队友互相讨论、互相 review"| E["✅ Agent Team<br/>直接通信，共享任务列表"]
+    style A fill:#e8f5e9,stroke:#4caf50
+    style B fill:#e8f5e9,stroke:#4caf50
+    style C fill:#e8f5e9,stroke:#4caf50
+    style D fill:#e8f5e9,stroke:#4caf50
+    style E fill:#e8f5e9,stroke:#4caf50
 ```
-你的任务是什么？
-│
-├── 单一连贯任务，不需要并行
-│   └── 普通 Agent（默认就是，无需配置）
-│
-├── 有侧任务会产生大量中间数据，污染主上下文
-│   └── Subagent（保护主上下文，只传回摘要）
-│
-├── 反复需要同类专职工作者
-│   └── Subagent（固化为配置文件，一次配置反复用）
-│
-├── 任务可以拆成独立子任务并行
-│   └── 多个 Subagent 并行（background: true）
-│
-└── 需要队友之间互相讨论、分享发现、互相 review
-    └── Agent Team（直接通信，共享任务列表）
 
-成本考虑：
-普通 Agent < Subagent < 多 Subagent < Agent Team
-```
+> 成本参考：普通 Agent < Subagent < 多 Subagent < Agent Team
 
 ---
 

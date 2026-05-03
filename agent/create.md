@@ -14,30 +14,22 @@
 
 ## 一、Agent 由什么组成
 
-官方（[Managed Agents 架构文档](https://www.anthropic.com/engineering/managed-agents)）明确定义了四个核心组成部分：
+官方（[Managed Agents 架构文档](https://www.anthropic.com/engineering/managed-agents)）定义了四个核心组成部分：
 
-```
-┌──────────────────────────────────────────────────┐
-│                    Agent                          │
-│                                                  │
-│   ┌──────────┐   ┌──────────┐   ┌────────────┐  │
-│   │  Model   │   │ Harness  │   │   Tools    │  │
-│   │ AI 模型  │   │ 指令护栏  │   │ 可调用工具 │  │
-│   └──────────┘   └──────────┘   └────────────┘  │
-│                                                  │
-│                ┌─────────────┐                   │
-│                │ Environment │                   │
-│                │  运行环境   │                   │
-│                └─────────────┘                   │
-└──────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph A [" Agent "]
+        M["🧠 Model<br/>AI 模型"]
+        H["📋 Harness<br/>指令护栏"]
+        T["🔧 Tools<br/>可调用工具"]
+        E["🌍 Environment<br/>运行环境"]
+    end
 ```
 
-| 组成部分 | 官方定义 | 通俗说 |
-|----------|----------|--------|
-| **Model** | 提供智能的 AI 模型 | Agent 的"大脑" |
-| **Harness** | 模型运行的指令和护栏（系统提示、规则、约束） | Agent 的"行为规范" |
-| **Tools** | 模型可使用的服务和应用 | Agent 的"双手" |
-| **Environment** | Agent 运行的地方和可访问的系统 | Agent 的"工作场所" |
+- **Model** — 提供智能的 AI 模型，Agent 的"大脑"
+- **Harness** — 系统提示、规则、约束，Agent 的"行为规范"
+- **Tools** — 模型可使用的服务和应用，Agent 的"双手"
+- **Environment** — Agent 运行的地方和可访问的系统，Agent 的"工作场所"
 
 ---
 
@@ -45,11 +37,15 @@
 
 Anthropic 提供三种方式，按复杂度从低到高：
 
-```
-简单 ←──────────────────────────────────→ 复杂
-
-Claude Code Subagent   Agent SDK   Managed Agents
-    （写配置文件）       （写代码）     （托管平台）
+```mermaid
+graph LR
+    A["📄 Claude Code Subagent<br/>写配置文件"]
+    B["🐍 Agent SDK<br/>写代码"]
+    C["☁️ Managed Agents<br/>托管平台"]
+    A -->|"更复杂 →"| B -->|"更复杂 →"| C
+    style A fill:#e8f5e9,stroke:#4caf50
+    style B fill:#fff9c4,stroke:#ffc107
+    style C fill:#fce4ec,stroke:#f06292
 ```
 
 ---
@@ -100,16 +96,11 @@ maxTurns: 15
 
 ## 输出格式
 
-按优先级分三档输出：
+**严重（必须修复）** — 安全漏洞、数据泄露风险、崩溃隐患
 
-**严重（必须修复）**
-- 安全漏洞、数据泄露风险、崩溃隐患
+**警告（建议修复）** — 性能问题、代码规范违反、可读性差
 
-**警告（建议修复）**
-- 性能问题、代码规范违反、可读性差
-
-**建议（可以考虑）**
-- 代码优化、更好的写法
+**建议（可以考虑）** — 代码优化、更好的写法
 
 每条问题附上具体修复代码。
 ```
@@ -127,34 +118,28 @@ maxTurns: 15
 claude --agent code-reviewer
 ```
 
-### 核心字段速查
+### 核心字段说明
 
-| 字段 | 是否必填 | 说明 | 建议 |
-|------|----------|------|------|
-| `name` | ✅ | Agent 唯一标识，用英文短横线 | 见名知意，如 `test-writer` |
-| `description` | ✅ | Claude 决定"何时调用"的依据 | **写触发场景，越具体越好** |
-| `tools` | ❌ | 允许使用的工具列表 | 只给必要的工具 |
-| `model` | ❌ | 使用的模型 | `inherit` 继承主模型，轻量任务用 `haiku` |
-| `maxTurns` | ❌ | 最大轮次，防无限循环 | 生产环境必须设，建议 10-30 |
-| `permissionMode` | ❌ | 权限模式 | 默认 `default` 即可 |
-| `background` | ❌ | 是否后台并行运行 | 独立任务设 `true` 提速 |
-| `isolation` | ❌ | 在 git worktree 隔离运行 | 有写操作风险时设 `worktree` |
+- **`name`** 必填 — Agent 唯一标识，用英文短横线，如 `test-writer`
+- **`description`** 必填 — Claude 决定"何时调用"的依据，**写触发场景，越具体越好**
+- **`tools`** 可选 — 允许使用的工具列表，只给必要的
+- **`model`** 可选 — `inherit` 继承主模型，轻量任务用 `haiku`
+- **`maxTurns`** 可选 — 最大轮次，防无限循环，生产环境必须设，建议 10–30
+- **`permissionMode`** 可选 — 权限模式，默认 `default` 即可
+- **`background`** 可选 — 是否后台并行运行，独立任务设 `true` 提速
+- **`isolation`** 可选 — 在 git worktree 隔离运行，有写操作风险时设 `worktree`
 
 ---
 
-## 路径二：Agent SDK（编程方式）
+## 路径二：Agent SDK（编程方式，适合自动化）
 
-适合：CI/CD 流水线、后端服务集成、需要精确控制 Agent 行为的场景
+### 适用场景
 
-### 完整步骤
+- CI/CD 流水线里跑 Agent
+- 后端服务里集成 Agent 能力
+- 需要精确控制 Agent 行为
 
-**第一步：安装 SDK**
-
-```bash
-pip install claude-agent-sdk
-```
-
-**第二步：最简示例**
+### 最简示例
 
 ```python
 import asyncio
@@ -172,89 +157,72 @@ async def main():
 asyncio.run(main())
 ```
 
-**第三步：加上会话持久化**
+### 会话持久化
 
 ```python
-async def main():
-    # 第一次对话
-    session_id = None
-    async for message in query(
-        prompt="分析这个项目的架构",
-        options=ClaudeAgentOptions(allowed_tools=["Read", "Glob", "Grep"])
-    ):
-        if hasattr(message, 'session_id'):
-            session_id = message.session_id  # 保存 session_id
-        print(message)
+# 第一次对话：保存 session_id
+async for message in query(prompt="分析这个项目的架构"):
+    if hasattr(message, 'session_id'):
+        session_id = message.session_id
 
-    # 第二次对话：延续上下文
-    async for message in query(
-        prompt="基于刚才的分析，帮我补充测试用例",
-        session_id=session_id               # 传入 session_id
-    ):
-        print(message)
+# 第二次对话：延续上下文
+async for message in query(
+    prompt="基于刚才的分析，帮我补充测试用例",
+    session_id=session_id
+):
+    print(message)
 ```
 
-**第四步：加上 Hooks**
+### Hooks（生命周期钩子）
 
 ```python
 def before_tool(tool_name, tool_input):
-    print(f"即将调用工具：{tool_name}")
     if tool_name == "Bash" and "rm -rf" in str(tool_input):
         raise Exception("拦截危险命令")
-
-def after_tool(tool_name, result):
-    print(f"工具 {tool_name} 执行完成")
 
 options = ClaudeAgentOptions(
     allowed_tools=["Read", "Edit", "Bash"],
     hooks={
-        "PreToolUse": before_tool,
-        "PostToolUse": after_tool,
+        "PreToolUse":  before_tool,
+        "PostToolUse": lambda name, result: print(f"{name} 完成"),
     }
 )
 ```
 
-**第五步：启用子 Agent 能力**
+### 可用工具
 
-```python
-# 在 allowed_tools 里加 "Agent"，Claude 就能自动派子 Agent
-options = ClaudeAgentOptions(
-    allowed_tools=["Read", "Write", "Bash", "Agent"]
-)
-```
-
-### Agent SDK 可用工具一览
-
-| 工具 | 说明 |
-|------|------|
-| `Read` / `Write` / `Edit` | 文件读写 |
-| `Bash` | 执行 shell 命令 |
-| `Glob` / `Grep` | 文件/内容搜索 |
-| `WebSearch` / `WebFetch` | 网络操作 |
-| `AskUserQuestion` | 向用户提问 |
-| `Agent` | 启动子 Agent（重要） |
+- **`Read` / `Write` / `Edit`** — 文件读写
+- **`Bash`** — 执行 shell 命令
+- **`Glob` / `Grep`** — 文件/内容搜索
+- **`WebSearch` / `WebFetch`** — 网络操作
+- **`AskUserQuestion`** — 向用户提问
+- **`Agent`** — 启动子 Agent（在 `allowed_tools` 里加上这个就能派子代理）
 
 ---
 
 ## 路径三：Managed Agents（Anthropic 托管，Beta）
 
-适合：长期运行的异步任务（几小时甚至几天）、不想自己维护服务器、需要 Anthropic 级别的安全沙箱
+### 适用场景
 
-### 架构说明
+- 长期运行的异步任务（数小时甚至数天）
+- 不想自己维护服务器和执行环境
+- 需要 Anthropic 级别的安全沙箱
 
-官方内部有三个虚拟化组件：
+### 内部架构
 
-| 组件 | 作用 |
-|------|------|
-| **Session** | 追加日志，记录发生的一切，支持从故障恢复 |
-| **Harness** | 调用 Claude 的循环，把工具调用路由到基础设施 |
-| **Sandbox** | 代码和文件编辑的隔离执行环境（凭证不会进入这里） |
+```mermaid
+graph TD
+    S["📝 Session<br/>追加日志，支持从故障恢复"]
+    H["🔁 Harness<br/>调用 Claude 的循环，路由工具调用"]
+    SB["📦 Sandbox<br/>隔离执行环境（凭证不进入这里）"]
+    S --> H --> SB
+```
 
-**关键设计原则：解耦大脑与手**
+::: tip 关键设计原则
+**解耦大脑与手** — Claude 的推理逻辑与执行环境分离，凭证不会到达 Claude 代码执行的沙箱。
+:::
 
-> Claude 的推理逻辑与执行环境分离，凭证不会到达 Claude 代码执行的沙箱。
-
-### 调用方式（需 Beta Header）
+### 调用方式
 
 ```python
 import anthropic
@@ -276,11 +244,9 @@ Managed Agents 目前是公开 Beta（2026-04-08 发布），API 可能变化。
 
 ## 三、Agent Skills：给 Agent 加载专业能力
 
-### 什么是 Skills
+Skills 是**有组织的目录**，包含指令、脚本和资源，Agent 可以动态发现并加载。
 
-Skills 是**有组织的目录**，包含指令、脚本和资源，Agent 可以动态发现并加载，用于执行专业任务。
-
-核心设计原则：**渐进式披露（Progressive Disclosure）** — 分层加载，只在需要时才加载详细内容，节省上下文。
+官方核心设计：**渐进式披露（Progressive Disclosure）** — 分层加载，只在需要时才加载详细内容，节省上下文。
 
 ### 目录结构
 
@@ -291,55 +257,22 @@ my-skill/
 └── forms.md        # 可选：只在需要时加载的上下文
 ```
 
-### SKILL.md 格式
-
-```markdown
----
-name: ios-code-generator
-description: iOS Swift 代码生成专家，遵循 Wyze 编码规范
 ---
 
-## 核心能力
+## 四、选哪种方式
 
-生成符合 Wyze 规范的 Swift 代码，包括：
-- ViewController / ViewModel 骨架
-- 网络请求封装
-- 单测模板
-
-## 规范要点
-
-- 类名使用 WZ 前缀
-- 错误处理用 Result<T, Error>
-- 函数超 80 行必须拆分
-
-[详细规范见 reference.md]
-```
-
----
-
-## 四、选哪种方式？
-
-```
-你的场景是什么？
-│
-├── 在 Claude Code 里提效、日常开发辅助
-│   └── → Subagent（写 .md 文件，5 分钟搞定）
-│
-├── 需要在代码/脚本里自动化调用
-│   └── → Agent SDK（Python/TypeScript）
-│
-├── 长期任务、不想管服务器
-│   └── → Managed Agents（Beta）
-│
-└── 给 Agent 加载专业知识/规范
-    └── → Skills（配合上面任意方式用）
+```mermaid
+flowchart TD
+    Q{你的场景是什么？}
+    Q -->|"Claude Code 里提效、日常开发辅助"| A["✅ Subagent<br/>写 .md 文件，5 分钟搞定"]
+    Q -->|"需要在代码/脚本里自动化调用"| B["✅ Agent SDK<br/>Python / TypeScript"]
+    Q -->|"长期任务、不想管服务器"| C["✅ Managed Agents（Beta）"]
+    Q -->|"给 Agent 加载专业知识/规范"| D["✅ Skills<br/>配合上面任意方式用"]
 ```
 
 ---
 
 ## 五、最佳实践
-
-来自官方建议：
 
 1. **description 要写触发场景** — Claude 靠 description 决定何时调用，模糊的描述导致该调不调、不该调乱调
 2. **工具最小化原则** — 只给 Agent 完成任务所需的最小工具集

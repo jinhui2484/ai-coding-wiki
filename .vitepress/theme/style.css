@@ -1,0 +1,51 @@
+/* Claude Brand Colors */
+:root {
+  /* 主色：Claude 暖橙珊瑚 */
+  --vp-c-brand-1: #d97757;
+  --vp-c-brand-2: #c4623d;
+  --vp-c-brand-3: #e8916f;
+  --vp-c-brand-soft: rgba(217, 119, 87, 0.12);
+
+  /* 导航栏 active 指示线 */
+  --vp-nav-logo-height: 24px;
+}
+
+/* Dark mode */
+.dark {
+  --vp-c-brand-1: #e8916f;
+  --vp-c-brand-2: #d97757;
+  --vp-c-brand-3: #f0a98a;
+  --vp-c-brand-soft: rgba(217, 119, 87, 0.16);
+}
+
+/* 按钮 */
+.vp-doc a,
+.vp-doc a:hover {
+  color: var(--vp-c-brand-1);
+}
+
+/* Hero 按钮 */
+.VPButton.medium.brand {
+  background-color: var(--vp-c-brand-1);
+  border-color: var(--vp-c-brand-1);
+}
+.VPButton.medium.brand:hover {
+  background-color: var(--vp-c-brand-2);
+  border-color: var(--vp-c-brand-2);
+}
+
+/* 侧边栏 active 项 */
+.VPSidebarItem.is-active > .item .link {
+  color: var(--vp-c-brand-1) !important;
+}
+
+/* 大纲目录 active */
+.VPDocOutlineItem a.active {
+  color: var(--vp-c-brand-1) !important;
+}
+
+/* 搜索高亮 */
+.vp-doc mark {
+  background-color: rgba(217, 119, 87, 0.2);
+  color: inherit;
+}
