@@ -13,6 +13,7 @@ export default withMermaid(defineConfig({
 
     nav: [
       { text: '首页', link: '/' },
+      { text: 'Skill 手册', link: '/skills/' },
       {
         text: '知识模块',
         items: [
@@ -30,6 +31,12 @@ export default withMermaid(defineConfig({
     ],
 
     sidebar: [
+      {
+        text: 'Skill 体系',
+        items: [
+          { text: 'Skill 全景手册', link: '/skills/' },
+        ]
+      },
       {
         text: 'Claude Code CLI',
         items: [
