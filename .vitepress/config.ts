@@ -3,23 +3,23 @@ import { withMermaid } from 'vitepress-plugin-mermaid'
 
 export default withMermaid(defineConfig({
   lang: 'zh-CN',
-  title: 'Claude Code 知识库',
-  description: '基于 Anthropic 官方文档整理的 Claude Code 实用指南',
+  title: 'AI 工具知识库',
+  description: '覆盖 Claude Code、Skill 工作流、AI 编程工具的实用知识库，持续更新',
   lastUpdated: true,
 
   themeConfig: {
-    logo: '🤖',
-    siteTitle: 'Claude Code 知识库',
+    logo: '/logo.svg',
+    siteTitle: 'AI 工具知识库',
 
     nav: [
       { text: '首页', link: '/' },
-      { text: 'Skill 手册', link: '/skills/' },
       {
-        text: '知识模块',
+        text: 'Claude Code',
+        activeMatch: '^/(guide|agent)/',
         items: [
-          { text: '完整命令手册', link: '/guide/commands' },
+          { text: '命令手册', link: '/guide/commands' },
           {
-            text: 'Agent 系列',
+            text: 'Agent 开发',
             items: [
               { text: 'Agent 入门', link: '/agent/intro' },
               { text: '创建 Agent', link: '/agent/create' },
@@ -27,31 +27,56 @@ export default withMermaid(defineConfig({
             ]
           },
         ]
-      }
+      },
+      {
+        text: 'Skill 工作流',
+        activeMatch: '^/skills/',
+        link: '/skills/',
+      },
     ],
 
-    sidebar: [
-      {
-        text: 'Skill 体系',
-        items: [
-          { text: 'Skill 全景手册', link: '/skills/' },
-        ]
-      },
-      {
-        text: 'Claude Code CLI',
-        items: [
-          { text: '完整命令手册', link: '/guide/commands' }
-        ]
-      },
-      {
-        text: 'Agent 系列',
-        items: [
-          { text: 'Agent 入门指南', link: '/agent/intro' },
-          { text: '如何创建 Agent', link: '/agent/create' },
-          { text: '多 Agent 协调', link: '/agent/multi-agent' },
-        ]
-      }
-    ],
+    sidebar: {
+      '/guide/': [
+        {
+          text: 'CLAUDE CODE',
+          items: [
+            { text: '命令手册', link: '/guide/commands' },
+          ]
+        },
+        {
+          text: 'AGENT 开发',
+          items: [
+            { text: 'Agent 入门', link: '/agent/intro' },
+            { text: '创建 Agent', link: '/agent/create' },
+            { text: '多 Agent 协调', link: '/agent/multi-agent' },
+          ]
+        }
+      ],
+      '/agent/': [
+        {
+          text: 'CLAUDE CODE',
+          items: [
+            { text: '命令手册', link: '/guide/commands' },
+          ]
+        },
+        {
+          text: 'AGENT 开发',
+          items: [
+            { text: 'Agent 入门', link: '/agent/intro' },
+            { text: '创建 Agent', link: '/agent/create' },
+            { text: '多 Agent 协调', link: '/agent/multi-agent' },
+          ]
+        }
+      ],
+      '/skills/': [
+        {
+          text: 'SKILL 工作流',
+          items: [
+            { text: 'Skill 全景手册', link: '/skills/' },
+          ]
+        }
+      ],
+    },
 
     socialLinks: [
       {
@@ -63,8 +88,8 @@ export default withMermaid(defineConfig({
     ],
 
     footer: {
-      message: '基于 Anthropic 官方文档整理',
-      copyright: '更新于 2026-05-03'
+      message: '个人 AI 工具知识库，持续更新',
+      copyright: '更新于 2026-05-06'
     },
 
     search: {

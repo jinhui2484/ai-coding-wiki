@@ -1,21 +1,27 @@
-/* Claude Brand Colors */
+/* Brand Colors */
 :root {
-  /* 主色：Claude 暖橙珊瑚 */
   --vp-c-brand-1: #d97757;
   --vp-c-brand-2: #c4623d;
   --vp-c-brand-3: #e8916f;
   --vp-c-brand-soft: rgba(217, 119, 87, 0.12);
-
-  /* 导航栏 active 指示线 */
   --vp-nav-logo-height: 24px;
 }
 
-/* Dark mode */
+/* Dark mode — 深背景接近 Mintlify 风格 */
 .dark {
   --vp-c-brand-1: #e8916f;
   --vp-c-brand-2: #d97757;
   --vp-c-brand-3: #f0a98a;
   --vp-c-brand-soft: rgba(217, 119, 87, 0.16);
+
+  --vp-c-bg: #09090b;
+  --vp-c-bg-soft: #111113;
+  --vp-c-bg-mute: #18181b;
+  --vp-c-bg-alt: #09090b;
+
+  --vp-nav-bg-color: #09090b;
+  --vp-sidebar-bg-color: #0d0d0f;
+  --vp-c-divider: rgba(255, 255, 255, 0.08);
 }
 
 /* 按钮 */
@@ -62,6 +68,27 @@
 
 .VPMenuItem:hover .text {
   color: var(--vp-c-brand-1) !important;
+}
+
+/* 侧边栏分组标题 — 全大写小字标签，接近 Mintlify 风格 */
+.VPSidebarItem.level-0 > .item > .text {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vp-c-text-3) !important;
+  opacity: 0.7;
+}
+
+.dark .VPSidebarItem.level-0 > .item > .text {
+  color: rgba(255, 255, 255, 0.4) !important;
+  opacity: 1;
+}
+
+/* 侧边栏子项字号稍小 */
+.VPSidebarItem.level-1 > .item .link,
+.VPSidebarItem.level-2 > .item .link {
+  font-size: 0.875rem;
 }
 
 /* 搜索高亮 */

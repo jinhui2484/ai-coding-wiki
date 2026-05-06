@@ -2,38 +2,29 @@
 layout: home
 
 hero:
-  name: "Claude Code"
-  text: "个人知识库"
-  tagline: 基于 Anthropic 官方文档深度整理，覆盖 CLI 命令、Agent 开发到多智能体协调，持续更新中
+  name: "AI 工具知识库"
+  text: "个人实践手册"
+  tagline: 覆盖 Claude Code、Skill 工作流、AI 编程工具的实用知识，持续更新中
 ---
 
 <div class="home-modules">
 
-## 📚 知识模块
+## 知识模块
 
 <div class="module-group">
 
-### 🖥️ Claude Code CLI
+### Claude Code
 
 <div class="card-row">
   <a class="card" href="/guide/commands">
     <div class="card-icon">📋</div>
     <div class="card-body">
       <div class="card-title">完整命令手册</div>
-      <div class="card-desc">14 大类、80+ 条命令，涵盖会话管理、模型控制、自动化工作流，附常用工作流组合</div>
+      <div class="card-desc">14 大类、80+ 条命令，涵盖会话管理、模型控制、自动化工作流</div>
     </div>
   </a>
-</div>
-
-</div>
-
-<div class="module-group">
-
-### 🤖 Agent 开发系列
-
-<div class="card-row">
   <a class="card" href="/agent/intro">
-    <div class="card-icon">🚀</div>
+    <div class="card-icon">🤖</div>
     <div class="card-body">
       <div class="card-title">Agent 入门</div>
       <div class="card-desc">Tool Use、Agentic Loop、Subagent，从零理解 Agent 工作原理</div>
@@ -42,8 +33,8 @@ hero:
   <a class="card" href="/agent/create">
     <div class="card-icon">🔧</div>
     <div class="card-body">
-      <div class="card-title">如何创建 Agent</div>
-      <div class="card-desc">三条创建路径：Subagent 配置文件、Agent SDK、Managed Agents</div>
+      <div class="card-title">创建 Agent</div>
+      <div class="card-desc">三条路径：Subagent 配置文件、Agent SDK、Managed Agents</div>
     </div>
   </a>
   <a class="card" href="/agent/multi-agent">
@@ -57,9 +48,25 @@ hero:
 
 </div>
 
+<div class="module-group">
+
+### Skill 工作流
+
+<div class="card-row">
+  <a class="card" href="/skills/">
+    <div class="card-icon">⚡</div>
+    <div class="card-body">
+      <div class="card-title">Skill 全景手册</div>
+      <div class="card-desc">18 个本地 Skill + 21 个 gstack Skill，覆盖开发全流程，含触发词与实战示例</div>
+    </div>
+  </a>
+</div>
+
+</div>
+
 <div class="module-group coming-soon">
 
-### 🗓️ 即将更新
+### 即将更新
 
 <div class="card-row">
   <div class="card disabled">
@@ -77,10 +84,10 @@ hero:
     </div>
   </div>
   <div class="card disabled">
-    <div class="card-icon">💡</div>
+    <div class="card-icon">🖱️</div>
     <div class="card-body">
-      <div class="card-title">实战案例集 <span class="badge">即将更新</span></div>
-      <div class="card-desc">iOS 插件开发、CI/CD 集成、代码 Review 自动化等真实场景实战</div>
+      <div class="card-title">Cursor 使用指南 <span class="badge">即将更新</span></div>
+      <div class="card-desc">Rules 配置、Composer Agent 模式、与 Claude Code 的协作模式对比</div>
     </div>
   </div>
 </div>
@@ -91,13 +98,13 @@ hero:
 
 <div class="home-sources">
 
-## 📖 文档来源
+## 参考来源
 
 - [Anthropic 官方文档 · Agents Overview](https://docs.anthropic.com/en/docs/agents-and-tools/agents-overview)
 - [Claude Code · Sub-agents](https://code.claude.com/docs/en/sub-agents)
 - [Claude Code · Agent SDK](https://code.claude.com/docs/en/agent-sdk/overview)
 - [Anthropic Engineering · Building Effective Agents](https://www.anthropic.com/research/building-effective-agents)
-- [Anthropic Engineering · Managed Agents](https://www.anthropic.com/engineering/managed-agents)
+- [gstack · Garry Tan's Claude Code skill pack](https://github.com/garrytan/gstack)
 
 </div>
 
