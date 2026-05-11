@@ -47,8 +47,8 @@ git push origin main
 ### 配置入口
 
 `.vitepress/config.ts` — 所有导航（`nav`）和侧边栏（`sidebar`）都在这里维护：
-- `nav`：顶部导航，Claude Code 为下拉组，Skill 工作流为独立链接
-- `sidebar`：按路径前缀分区（`/guide/`、`/agent/`、`/skills/`），各区独立侧边栏
+- `nav`：顶部导航，Claude Code 和 Copilot CLI 为下拉组，Skill 工作流为独立链接
+- `sidebar`：按路径前缀分区（`/claude/`、`/copilot/`、`/skills/`），各区独立侧边栏
 
 ### 主题
 
