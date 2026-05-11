@@ -1,84 +1,59 @@
-# Claude Code 知识库
+# AI 工具知识库
 
-基于 Anthropic 官方文档整理的 Claude Code 实用指南，涵盖 CLI 命令、Agent 开发、多 Agent 协调等内容。
+覆盖 Claude Code、GitHub Copilot CLI、Skill 工作流的实用知识库，持续更新。
 
-**线上地址：** [https://jh-claude-docs.netlify.app](https://jh-claude-docs.netlify.app)
+**线上地址：** [https://jinhui324.github.io/claude-docs/](https://jinhui324.github.io/claude-docs/)
 
-**源码仓库：** [https://gitee.com/jinhuizhang/claude-docs](https://gitee.com/jinhuizhang/claude-docs)
+**源码仓库：**
+- GitHub：[https://github.com/Jinhui324/claude-docs](https://github.com/Jinhui324/claude-docs)
+- Gitee：[https://gitee.com/jinhuizhang/claude-docs](https://gitee.com/jinhuizhang/claude-docs)
 
 ---
 
-## 从零创建该工程
+## 内容模块
 
-**环境要求：** Node.js 18+
+| 模块 | 路径 | 内容 |
+|------|------|------|
+| Claude Code | `claude/` | 命令手册（80+ 条命令）、Agent 入门、创建 Agent、多 Agent 协调 |
+| Copilot CLI | `copilot/` | 全部斜杠命令 + 快捷键，涵盖会话、Agent、代码操作、权限管理 |
+| Skill 工作流 | `skills/` | 18 个本地 Skill + 21 个 gstack Skill，覆盖开发全流程 |
+
+---
+
+## 本地开发
 
 ```bash
-# 1. 初始化项目
-mkdir claude-docs && cd claude-docs
-npm init -y
+# 安装依赖
+npm install
 
-# 2. 安装依赖
-npm install -D vitepress
-npm install mermaid vitepress-plugin-mermaid
-
-# 3. 创建配置文件
-mkdir -p .vitepress/theme
-# 参考本仓库的 .vitepress/config.ts 和 .vitepress/theme/ 目录
-
-# 4. 创建首页
-echo '# 首页' > index.md
-
-# 5. 启动开发服务器
+# 启动开发服务器（localhost:5173，热更新）
 npm run dev
+
+# 构建静态文件
+npm run build
 ```
 
 ---
 
-## 本地预览
+## 新增文章
+
+1. 在对应目录下新建 `.md` 文件
+2. 在 `.vitepress/config.ts` 的 `nav` 和 `sidebar` 中添加条目
+3. `npm run build` 验证无报错后推送
+
+---
+
+## 部署
+
+推送 `main` 分支即自动部署：
 
 ```bash
-npm run dev
-# 浏览器打开 http://localhost:5173
-# 保存文件即时热更新，无需重启
+# 部署到 GitHub Pages（自动触发 GitHub Actions）
+git push github main
+
+# 同步代码到 Gitee
+git push origin main
 ```
-
----
-
-## 发布到 Netlify（首次）
-
-1. 执行构建，生成静态文件：
-   ```bash
-   npm run build
-   # 产物在 .vitepress/dist/
-   ```
-2. 打开 [https://app.netlify.com/drop](https://app.netlify.com/drop)
-3. 将 `.vitepress/dist` 文件夹拖入页面
-4. Netlify 自动生成站点链接，在站点设置里可改名
-
----
-
-## 更新发布（后续每次）
-
-> ⚠️ 不要再拖到 [app.netlify.com/drop](https://app.netlify.com/drop)，否则会创建新站点
-
-1. 编辑文档
-2. 构建：
-   ```bash
-   npm run build
-   ```
-3. 打开已有站点的 Deploys 页面：[https://app.netlify.com/projects/jh-claude-docs/deploys](https://app.netlify.com/projects/jh-claude-docs/deploys)
-4. 将 `.vitepress/dist` 文件夹拖入页面，覆盖更新
-
----
-
-## 新增一篇文章
-
-1. 在对应目录下新建 `.md` 文件，例如 `agent/hooks.md`
-2. 在 `.vitepress/config.ts` 的 `nav` 和 `sidebar` 中各加一行：
-   ```ts
-   { text: '文章标题', link: '/agent/hooks' }
-   ```
-3. 构建 + 更新发布
 
 ---
 
@@ -87,16 +62,19 @@ npm run dev
 ```
 claude-docs/
 ├── .vitepress/
-│   ├── config.ts          # 站点配置（导航、侧边栏、主题）
+│   ├── config.ts          # 站点配置（导航、侧边栏）
 │   └── theme/
 │       ├── index.ts       # 主题入口
-│       └── style.css      # 自定义样式（Claude 品牌色）
-├── guide/
-│   └── commands.md        # CLI 命令手册
-├── agent/
-│   ├── intro.md           # Agent 入门
-│   ├── create.md          # 如何创建 Agent
+│       └── style.css      # 自定义样式（暖橙品牌色）
+├── claude/
+│   ├── commands.md        # Claude Code 命令手册
+│   ├── agent-intro.md     # Agent 入门
+│   ├── agent-create.md    # 创建 Agent
 │   └── multi-agent.md     # 多 Agent 协调
+├── copilot/
+│   └── commands.md        # Copilot CLI 命令手册
+├── skills/
+│   └── index.md           # Skill 全景手册
 └── index.md               # 首页
 ```
 
@@ -106,4 +84,4 @@ claude-docs/
 
 - [VitePress](https://vitepress.dev) — 静态站点生成器
 - [vitepress-plugin-mermaid](https://github.com/emersonbottero/vitepress-plugin-mermaid) — Mermaid 图表支持
-- [Netlify](https://netlify.com) — 托管部署
+- [GitHub Pages](https://pages.github.com) — 托管部署
