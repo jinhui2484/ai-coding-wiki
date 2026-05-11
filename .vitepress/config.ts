@@ -5,6 +5,7 @@ export default withMermaid(defineConfig({
   lang: 'zh-CN',
   title: 'AI 工具知识库',
   description: '覆盖 Claude Code、Skill 工作流、AI 编程工具的实用知识库，持续更新',
+  base: '/claude-docs/',
   lastUpdated: true,
 
   themeConfig: {
