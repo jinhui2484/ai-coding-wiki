@@ -16,28 +16,28 @@ hero:
 ### Claude Code
 
 <div class="card-row">
-  <a class="card" href="/claude/commands">
+  <a class="card" href="./claude/commands">
     <div class="card-icon">📋</div>
     <div class="card-body">
       <div class="card-title">完整命令手册</div>
       <div class="card-desc">14 大类、80+ 条命令，涵盖会话管理、模型控制、自动化工作流</div>
     </div>
   </a>
-  <a class="card" href="/claude/agent-intro">
+  <a class="card" href="./claude/agent-intro">
     <div class="card-icon">🤖</div>
     <div class="card-body">
       <div class="card-title">Agent 入门</div>
       <div class="card-desc">Tool Use、Agentic Loop、Subagent，从零理解 Agent 工作原理</div>
     </div>
   </a>
-  <a class="card" href="/claude/agent-create">
+  <a class="card" href="./claude/agent-create">
     <div class="card-icon">🔧</div>
     <div class="card-body">
       <div class="card-title">创建 Agent</div>
       <div class="card-desc">三条路径：Subagent 配置文件、Agent SDK、Managed Agents</div>
     </div>
   </a>
-  <a class="card" href="/claude/multi-agent">
+  <a class="card" href="./claude/multi-agent">
     <div class="card-icon">🌐</div>
     <div class="card-body">
       <div class="card-title">多 Agent 协调</div>
@@ -53,7 +53,7 @@ hero:
 ### Copilot CLI
 
 <div class="card-row">
-  <a class="card" href="/copilot/commands">
+  <a class="card" href="./copilot/commands">
     <div class="card-icon">🚀</div>
     <div class="card-body">
       <div class="card-title">命令手册</div>
@@ -69,7 +69,7 @@ hero:
 ### Skill 工作流
 
 <div class="card-row">
-  <a class="card" href="/skills/">
+  <a class="card" href="./skills/">
     <div class="card-icon">⚡</div>
     <div class="card-body">
       <div class="card-title">Skill 全景手册</div>
