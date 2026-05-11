@@ -50,7 +50,6 @@ export default withMermaid(defineConfig({
           text: 'CLAUDE CODE',
           items: [
             { text: '命令手册', link: '/claude/commands' },
-            { text: '发布与部署', link: '/claude/deploy' },
           ]
         },
         {
