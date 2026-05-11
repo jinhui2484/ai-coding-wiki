@@ -61,8 +61,8 @@ git push origin main
 | 路径 | 内容 |
 |------|------|
 | `index.md` | 首页（VitePress `layout: home`，含自定义卡片 CSS） |
-| `guide/` | Claude Code CLI 文档 |
-| `agent/` | Agent 开发系列 |
+| `claude/` | Claude Code CLI 文档（命令手册 + Agent 开发系列） |
+| `copilot/` | GitHub Copilot CLI 文档 |
 | `skills/` | Skill 工作流全景手册 |
 
 ### 新增文章流程

@@ -15,17 +15,24 @@ export default withMermaid(defineConfig({
       { text: '首页', link: '/' },
       {
         text: 'Claude Code',
-        activeMatch: '^/(guide|agent)/',
+        activeMatch: '^/claude/',
         items: [
-          { text: '命令手册', link: '/guide/commands' },
+          { text: '命令手册', link: '/claude/commands' },
           {
             text: 'Agent 开发',
             items: [
-              { text: 'Agent 入门', link: '/agent/intro' },
-              { text: '创建 Agent', link: '/agent/create' },
-              { text: '多 Agent 协调', link: '/agent/multi-agent' },
+              { text: 'Agent 入门', link: '/claude/agent-intro' },
+              { text: '创建 Agent', link: '/claude/agent-create' },
+              { text: '多 Agent 协调', link: '/claude/multi-agent' },
             ]
           },
+        ]
+      },
+      {
+        text: 'Copilot CLI',
+        activeMatch: '^/copilot/',
+        items: [
+          { text: '命令手册', link: '/copilot/commands' },
         ]
       },
       {
@@ -36,35 +43,27 @@ export default withMermaid(defineConfig({
     ],
 
     sidebar: {
-      '/guide/': [
+      '/claude/': [
         {
           text: 'CLAUDE CODE',
           items: [
-            { text: '命令手册', link: '/guide/commands' },
+            { text: '命令手册', link: '/claude/commands' },
           ]
         },
         {
           text: 'AGENT 开发',
           items: [
-            { text: 'Agent 入门', link: '/agent/intro' },
-            { text: '创建 Agent', link: '/agent/create' },
-            { text: '多 Agent 协调', link: '/agent/multi-agent' },
+            { text: 'Agent 入门', link: '/claude/agent-intro' },
+            { text: '创建 Agent', link: '/claude/agent-create' },
+            { text: '多 Agent 协调', link: '/claude/multi-agent' },
           ]
         }
       ],
-      '/agent/': [
+      '/copilot/': [
         {
-          text: 'CLAUDE CODE',
+          text: 'COPILOT CLI',
           items: [
-            { text: '命令手册', link: '/guide/commands' },
-          ]
-        },
-        {
-          text: 'AGENT 开发',
-          items: [
-            { text: 'Agent 入门', link: '/agent/intro' },
-            { text: '创建 Agent', link: '/agent/create' },
-            { text: '多 Agent 协调', link: '/agent/multi-agent' },
+            { text: '命令手册', link: '/copilot/commands' },
           ]
         }
       ],
