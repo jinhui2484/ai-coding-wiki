@@ -69,7 +69,19 @@ git push origin main
 2. 在 `config.ts` 的 `nav`（如需）和 `sidebar` 对应路径块中添加 `{ text, link }` 条目
 3. `npm run build` 验证无报错后推送
 
-### 部署
+### 部署与同步
 
-- **GitHub Pages**：`jinhui324.github.io/claude-docs`，推送 main 分支自动通过 GitHub Actions 部署
-- **Gitee**：`https://gitee.com/jinhuizhang/claude-docs`，仅同步代码，不部署
+**Git 远程仓库：**
+
+| Remote | 地址 | 用途 |
+|--------|------|------|
+| `github` | `https://github.com/Jinhui324/claude-docs.git` | 部署源，推送触发 GitHub Actions → GitHub Pages |
+| `origin` | `https://gitee.com/jinhuizhang/claude-docs.git` | 代码同步，不部署页面 |
+
+**线上地址：** `https://jinhui324.github.io/claude-docs/`
+
+**GitHub Actions 工作流：** `.github/workflows/deploy.yml`
+- 触发条件：`push` 到 `main` 或手动 `workflow_dispatch`
+- 构建流程：`checkout` → `setup-node@20` → `npm ci` → `npm run build` → 部署到 Pages
+
+**VitePress Base Path：** `base: '/claude-docs/'`（非 `username.github.io` 仓库必须设置）
