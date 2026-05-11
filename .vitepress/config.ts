@@ -19,7 +19,6 @@ export default withMermaid(defineConfig({
         activeMatch: '^/claude/',
         items: [
           { text: '命令手册', link: '/claude/commands' },
-          { text: '发布与部署', link: '/claude/deploy' },
           {
             text: 'Agent 开发',
             items: [
@@ -38,64 +37,46 @@ export default withMermaid(defineConfig({
         ]
       },
       {
-        text: 'Skill 工作流',
+        text: 'AI 大合集',
         activeMatch: '^/skills/',
-        link: '/skills/',
+        items: [
+          { text: 'Skill 工作流', link: '/skills/' },
+        ]
       },
     ],
 
-    sidebar: {
-      '/claude/': [
-        {
-          text: 'CLAUDE CODE',
-          items: [
-            { text: '命令手册', link: '/claude/commands' },
-          ]
-        },
-        {
-          text: 'AGENT 开发',
-          items: [
-            { text: 'Agent 入门', link: '/claude/agent-intro' },
-            { text: '创建 Agent', link: '/claude/agent-create' },
-            { text: '多 Agent 协调', link: '/claude/multi-agent' },
-          ]
-        }
-      ],
-      '/copilot/': [
-        {
-          text: 'COPILOT CLI',
-          items: [
-            { text: '命令手册', link: '/copilot/commands' },
-          ]
-        }
-      ],
-      '/skills/': [
-        {
-          text: 'SKILL 工作流',
-          items: [
-            { text: 'Skill 全景手册', link: '/skills/' },
-          ]
-        },
-        {
-          text: '开发流水线',
-          items: [
-            { text: '思考与规划', link: '/skills/#阶段一-思考与规划' },
-            { text: '执行与构建', link: '/skills/#阶段二-执行与构建' },
-            { text: '审查与调试', link: '/skills/#阶段三-审查与调试' },
-            { text: '测试与安全', link: '/skills/#阶段四-测试与安全' },
-            { text: '发布', link: '/skills/#阶段五-发布' },
-            { text: '工具与保障', link: '/skills/#工具与保障' },
-          ]
-        },
-        {
-          text: '参考',
-          items: [
-            { text: '速查表', link: '/skills/#完整-skill-速查表' },
-            { text: '工作流示例', link: '/skills/#典型工作流示例' },
-          ]
-        }
-      ],
-    },
+    sidebar: [
+      {
+        text: 'CLAUDE CODE',
+        collapsed: false,
+        items: [
+          { text: '命令手册', link: '/claude/commands' },
+        ]
+      },
+      {
+        text: 'AGENT 开发',
+        collapsed: false,
+        items: [
+          { text: 'Agent 入门', link: '/claude/agent-intro' },
+          { text: '创建 Agent', link: '/claude/agent-create' },
+          { text: '多 Agent 协调', link: '/claude/multi-agent' },
+        ]
+      },
+      {
+        text: 'COPILOT CLI',
+        collapsed: false,
+        items: [
+          { text: '命令手册', link: '/copilot/commands' },
+        ]
+      },
+      {
+        text: 'AI 大合集',
+        collapsed: false,
+        items: [
+          { text: 'Skill 工作流', link: '/skills/' },
+        ]
+      },
+    ],
 
     socialLinks: [
       {
