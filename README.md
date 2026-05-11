@@ -1,6 +1,6 @@
 # AI 工具知识库
 
-覆盖 Claude Code、GitHub Copilot CLI、Skill 工作流的实用知识库，持续更新。
+从工具到原理，系统梳理 AI 编程的核心知识体系。
 
 **线上地址：** [https://jinhui324.github.io/claude-docs/](https://jinhui324.github.io/claude-docs/)
 
@@ -10,13 +10,13 @@
 
 ---
 
-## 内容模块
+## 内容板块
 
-| 模块 | 路径 | 内容 |
+| 板块 | 路径 | 内容 |
 |------|------|------|
-| Claude Code | `claude/` | 命令手册（80+ 条命令）、Agent 入门、创建 Agent、多 Agent 协调 |
-| Copilot CLI | `copilot/` | 全部斜杠命令 + 快捷键，涵盖会话、Agent、代码操作、权限管理 |
-| Skill 工作流 | `skills/` | 18 个本地 Skill + 21 个 gstack Skill，覆盖开发全流程 |
+| 🛠️ AI 工具 | `tools/` | Cursor、GitHub Copilot、Claude Code、Codex CLI 介绍 + 四工具命令对照表 |
+| 🧩 AI 核心机制 | `core/` | Agent、MCP、LSP、Skills、Prompt、RAG、Function Calling、Embedding |
+| 📚 AI 进阶 | `advanced/` | 本地模型部署、模型微调、行业动态、精选文章 |
 
 ---
 
@@ -39,7 +39,8 @@ npm run build
 
 1. 在对应目录下新建 `.md` 文件
 2. 在 `.vitepress/config.ts` 的 `nav` 和 `sidebar` 中添加条目
-3. `npm run build` 验证无报错后推送
+3. 同步更新 `index.md` 首页知识目录树
+4. `npm run build` 验证无报错后推送
 
 ---
 
@@ -62,20 +63,29 @@ git push origin main
 ```
 claude-docs/
 ├── .vitepress/
-│   ├── config.ts          # 站点配置（导航、侧边栏）
+│   ├── config.ts              # 站点配置（导航、侧边栏）
 │   └── theme/
-│       ├── index.ts       # 主题入口
-│       └── style.css      # 自定义样式（暖橙品牌色）
-├── claude/
-│   ├── commands.md        # Claude Code 命令手册
-│   ├── agent-intro.md     # Agent 入门
-│   ├── agent-create.md    # 创建 Agent
-│   └── multi-agent.md     # 多 Agent 协调
-├── copilot/
-│   └── commands.md        # Copilot CLI 命令手册
-├── skills/
-│   └── index.md           # Skill 全景手册
-└── index.md               # 首页
+│       ├── index.ts           # 主题入口
+│       └── style.css          # 自定义样式（青色品牌色）
+├── tools/                     # 🛠️ AI 工具
+│   ├── commands.md            # 四工具命令对照表
+│   ├── cursor/intro.md        # Cursor 使用指南
+│   ├── claude/intro.md        # Claude Code 介绍
+│   ├── copilot/intro.md       # GitHub Copilot 介绍
+│   └── codex/intro.md         # Codex CLI 介绍
+├── core/                      # 🧩 AI 核心机制
+│   ├── agent/                 # Agent（概念、实战、多 Agent 协作）
+│   ├── mcp/                   # MCP（详解 + Awesome Servers）
+│   ├── skills/                # Skills（工作流 + Matt Pocock）
+│   ├── lsp.md                 # LSP 详解
+│   ├── prompt.md              # Prompt 实战
+│   ├── rag.md                 # RAG 检索增强
+│   ├── function-calling.md    # Function Calling
+│   └── embedding.md           # Embedding
+├── advanced/                  # 📚 AI 进阶
+│   ├── lab/                   # 实验室（本地部署、模型微调）
+│   └── insights/              # 洞察（行业动态、精选文章）
+└── index.md                   # 首页
 ```
 
 ---

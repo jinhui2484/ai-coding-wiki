@@ -112,6 +112,27 @@ npm run preview    # 本地预览构建产物
 - **简短指令风格**：用户常用简写（"jixu" = 继续、"都要加" = 全部添加、"帮我" = 直接执行不问），尽量少问多做
 - **一次只做一件事**：每次修改聚焦一个主题，不混入无关改动
 
+### 一致性强制规则（必须遵守）
+任何涉及文件增删、移动、重命名的操作，**必须同时检查并同步以下五处**，缺一不可：
+
+1. **本地目录结构** — 文件实际存放路径（`tools/`、`core/`、`advanced/`）
+2. **config.ts nav** — 顶部导航所有 `link` 字段
+3. **config.ts sidebar** — 侧边栏所有 `link` 字段
+4. **index.md 首页树** — 知识目录中所有 `href` 链接 + 篇数 badge
+5. **CLAUDE.md 架构描述** — 三大内容板块表格和目录说明
+
+验证方法：操作完成后执行以下检查，确保本地文件与 config 链接一一对应、无缺失无孤儿：
+```bash
+# 提取 config 中所有链接
+grep -o "link: '[^']*'" .vitepress/config.ts | sed "s/link: '//;s/'//" | grep -v '^/$' | grep -v '^http' | sort -u > /tmp/config_links.txt
+# 提取本地所有 md 文件路径
+find . -name '*.md' -not -path './.vitepress/*' -not -path './node_modules/*' -not -path './.git/*' | sed 's|^\./||;s|\.md$||;s|/index$|/|' | sort -u > /tmp/local_files.txt
+# 对比差异
+diff /tmp/config_links.txt /tmp/local_files.txt
+```
+
+**有多篇子文章的主题必须建子目录**（如 `core/agent/`、`core/mcp/`、`core/skills/`），单篇的直接放平级（如 `core/lsp.md`）。
+
 ### 技术约束备忘
 - VitePress sidebar 最多 2 级嵌套（group → item），无法 3 级
 - `index.md` 中全角冒号（efbc9a）会导致 edit 工具匹配失败，遇到时用 bash/Python 处理

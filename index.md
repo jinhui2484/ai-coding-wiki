@@ -36,23 +36,23 @@ hero:
   <span class="node-badge">5 篇</span>
 </summary>
 <div class="tree-children">
-  <a class="tree-leaf" href="./ai/commands">
+  <a class="tree-leaf" href="./tools/commands">
     <span class="leaf-title">命令合集</span>
     <span class="leaf-desc">Claude Code / Copilot CLI / Codex CLI 命令、快捷键、配置对照表</span>
   </a>
-  <a class="tree-leaf" href="./cursor/intro">
+  <a class="tree-leaf" href="./tools/cursor/intro">
     <span class="leaf-title">Cursor</span>
     <span class="leaf-desc">VS Code 魔改，AI 编辑器市场份额第一</span>
   </a>
-  <a class="tree-leaf" href="./copilot/intro">
+  <a class="tree-leaf" href="./tools/copilot/intro">
     <span class="leaf-title">GitHub Copilot</span>
     <span class="leaf-desc">GitHub 出品，PR / Issue / Actions 原生集成</span>
   </a>
-  <a class="tree-leaf" href="./claude/intro">
+  <a class="tree-leaf" href="./tools/claude/intro">
     <span class="leaf-title">Claude Code</span>
     <span class="leaf-desc">Anthropic 出品，本地工程协作 + Skills + MCP 集成</span>
   </a>
-  <a class="tree-leaf" href="./codex/intro">
+  <a class="tree-leaf" href="./tools/codex/intro">
     <span class="leaf-title">Codex CLI</span>
     <span class="leaf-desc">OpenAI 出品，沙箱安全执行 + 三级审批</span>
   </a>
@@ -69,15 +69,15 @@ hero:
   <details class="tree-node sub">
   <summary><span class="node-title">Agent</span><span class="node-desc">🕵️ 特工 — AI 自主决策与任务执行的核心</span><span class="node-badge">3 篇</span></summary>
   <div class="tree-children">
-    <a class="tree-leaf" href="./ai/agent/agent-intro">
+    <a class="tree-leaf" href="./core/agent/agent-intro">
       <span class="leaf-title">Agent 概念与原理</span>
       <span class="leaf-desc">Tool Use、Agentic Loop、Subagent，从零理解 Agent 工作原理</span>
     </a>
-    <a class="tree-leaf" href="./ai/agent/agent-create">
+    <a class="tree-leaf" href="./core/agent/agent-create">
       <span class="leaf-title">Agent 实战开发</span>
       <span class="leaf-desc">三条创建路径 + Claude Code vs Copilot CLI Agent 能力对比</span>
     </a>
-    <a class="tree-leaf" href="./ai/agent/multi-agent">
+    <a class="tree-leaf" href="./core/agent/multi-agent">
       <span class="leaf-title">多 Agent 协作</span>
       <span class="leaf-desc">五种协调模式，iOS / IoT 实战案例，编排最佳实践</span>
     </a>
@@ -87,11 +87,11 @@ hero:
   <details class="tree-node sub">
   <summary><span class="node-title">MCP</span><span class="node-desc">🌉 桥梁 — AI 与外部系统的标准通信协议</span><span class="node-badge">2 篇</span></summary>
   <div class="tree-children">
-    <a class="tree-leaf" href="./ai/mcp">
+    <a class="tree-leaf" href="./core/mcp/">
       <span class="leaf-title">MCP 详解</span>
       <span class="leaf-desc">Model Context Protocol 架构、双端配置、实战接入与排障</span>
     </a>
-    <a class="tree-leaf" href="./ai/awesome-mcp-servers">
+    <a class="tree-leaf" href="./core/mcp/awesome-mcp-servers">
       <span class="leaf-title">Awesome MCP Servers</span>
       <span class="leaf-desc">2200+ 社区 MCP Server 分类速查与精选 TOP 20</span>
     </a>
@@ -101,7 +101,7 @@ hero:
   <details class="tree-node sub">
   <summary><span class="node-title">LSP</span><span class="node-desc">🔬 解码器 — 让 AI 深度理解代码语义与符号</span><span class="node-badge">1 篇</span></summary>
   <div class="tree-children">
-    <a class="tree-leaf" href="./ai/lsp">
+    <a class="tree-leaf" href="./core/lsp">
       <span class="leaf-title">LSP 详解</span>
       <span class="leaf-desc">Language Server Protocol，11 种语言服务器配置与日常工作流</span>
     </a>
@@ -111,11 +111,11 @@ hero:
   <details class="tree-node sub">
   <summary><span class="node-title">Skills</span><span class="node-desc">🎯 教官 — 训练 AI 掌握专业工作流</span><span class="node-badge">2 篇</span></summary>
   <div class="tree-children">
-    <a class="tree-leaf" href="./skills/">
+    <a class="tree-leaf" href="./core/skills/">
       <span class="leaf-title">Skill 工作流</span>
       <span class="leaf-desc">18 个本地 Skill + 21 个 gstack Skill，覆盖开发全流程</span>
     </a>
-    <a class="tree-leaf" href="./ai/mattpocock-skills">
+    <a class="tree-leaf" href="./core/skills/mattpocock-skills">
       <span class="leaf-title">Matt Pocock Skills</span>
       <span class="leaf-desc">18 个实战工程 Skill，解决 AI 编程四大痛点</span>
     </a>
@@ -125,7 +125,7 @@ hero:
   <details class="tree-node sub">
   <summary><span class="node-title">Prompt</span><span class="node-desc">📝 话术师 — 用精准指令驱动 AI 输出</span><span class="node-badge">1 篇</span></summary>
   <div class="tree-children">
-    <a class="tree-leaf" href="./ai/prompt">
+    <a class="tree-leaf" href="./core/prompt">
       <span class="leaf-title">Prompt 实战</span>
       <span class="leaf-desc">系统指令设计、Few-shot、Chain-of-Thought、格式控制</span>
     </a>
@@ -135,7 +135,7 @@ hero:
   <details class="tree-node sub">
   <summary><span class="node-title">RAG</span><span class="node-desc">📚 情报员 — 检索外部知识增强 AI 回答</span><span class="node-badge">1 篇</span></summary>
   <div class="tree-children">
-    <a class="tree-leaf" href="./ai/rag">
+    <a class="tree-leaf" href="./core/rag">
       <span class="leaf-title">RAG 检索增强</span>
       <span class="leaf-desc">向量数据库、Embedding、Chunking、检索 + 生成全链路</span>
     </a>
@@ -145,7 +145,7 @@ hero:
   <details class="tree-node sub">
   <summary><span class="node-title">Function Calling</span><span class="node-desc">🔌 接线员 — 模型调用外部函数的底层能力</span><span class="node-badge">1 篇</span></summary>
   <div class="tree-children">
-    <a class="tree-leaf" href="./ai/function-calling">
+    <a class="tree-leaf" href="./core/function-calling">
       <span class="leaf-title">Function Calling</span>
       <span class="leaf-desc">模型调用外部函数的底层机制，Agent 与 MCP 的基石</span>
     </a>
@@ -155,7 +155,7 @@ hero:
   <details class="tree-node sub">
   <summary><span class="node-title">Embedding</span><span class="node-desc">🧬 翻译官 — 将文本转为向量，实现语义理解</span><span class="node-badge">1 篇</span></summary>
   <div class="tree-children">
-    <a class="tree-leaf" href="./ai/embedding">
+    <a class="tree-leaf" href="./core/embedding">
       <span class="leaf-title">Embedding</span>
       <span class="leaf-desc">文本向量化、语义搜索、代码搜索的核心技术</span>
     </a>
@@ -174,11 +174,11 @@ hero:
   <details class="tree-node sub">
   <summary><span class="node-title">AI 实验室</span><span class="node-desc">🧪 实验员 — 动手部署、微调、跑通全流程</span><span class="node-badge">2 篇</span></summary>
   <div class="tree-children">
-    <a class="tree-leaf" href="./ai-knowledge/lab/local-deployment">
+    <a class="tree-leaf" href="./advanced/lab/local-deployment">
       <span class="leaf-title">本地模型部署</span>
       <span class="leaf-desc">Ollama / llama.cpp / vLLM 本地运行指南</span>
     </a>
-    <a class="tree-leaf" href="./ai-knowledge/lab/fine-tuning">
+    <a class="tree-leaf" href="./advanced/lab/fine-tuning">
       <span class="leaf-title">模型微调入门</span>
       <span class="leaf-desc">LoRA / QLoRA 微调流程、数据准备、训练实战</span>
     </a>
@@ -188,11 +188,11 @@ hero:
   <details class="tree-node sub">
   <summary><span class="node-title">AI 洞察</span><span class="node-desc">🔭 观察员 — 追踪行业趋势与优质内容</span><span class="node-badge">2 篇</span></summary>
   <div class="tree-children">
-    <a class="tree-leaf" href="./ai-knowledge/insights/trends">
+    <a class="tree-leaf" href="./advanced/insights/trends">
       <span class="leaf-title">行业动态</span>
       <span class="leaf-desc">AI 编程工具演进、重要发布、趋势观察</span>
     </a>
-    <a class="tree-leaf" href="./ai-knowledge/insights/curated-articles">
+    <a class="tree-leaf" href="./advanced/insights/curated-articles">
       <span class="leaf-title">精选文章</span>
       <span class="leaf-desc">GitHub / 公众号 / 博客优质文章收藏与点评</span>
     </a>

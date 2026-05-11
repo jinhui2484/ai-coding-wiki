@@ -18,89 +18,89 @@ export default withMermaid(defineConfig({
       { text: '首页', link: '/' },
       {
         text: 'AI 工具',
-        activeMatch: '^/(cursor|claude|copilot|codex|ai/commands)',
+        activeMatch: '^/tools/',
         items: [
-          { text: '命令合集', link: '/ai/commands' },
-          { text: 'Cursor', link: '/cursor/intro' },
-          { text: 'GitHub Copilot', link: '/copilot/intro' },
-          { text: 'Claude Code', link: '/claude/intro' },
-          { text: 'Codex CLI', link: '/codex/intro' },
+          { text: '命令合集', link: '/tools/commands' },
+          { text: 'Cursor', link: '/tools/cursor/intro' },
+          { text: 'GitHub Copilot', link: '/tools/copilot/intro' },
+          { text: 'Claude Code', link: '/tools/claude/intro' },
+          { text: 'Codex CLI', link: '/tools/codex/intro' },
         ]
       },
       {
         text: 'AI 核心机制',
-        activeMatch: '^/ai/(agent|mcp|awesome|lsp|mattpocock|prompt|rag)|^/skills/',
+        activeMatch: '^/core/',
         items: [
           {
             text: 'Agent',
             items: [
-              { text: 'Agent 概念与原理', link: '/ai/agent/agent-intro' },
-              { text: 'Agent 实战开发', link: '/ai/agent/agent-create' },
-              { text: '多 Agent 协作', link: '/ai/agent/multi-agent' },
+              { text: 'Agent 概念与原理', link: '/core/agent/agent-intro' },
+              { text: 'Agent 实战开发', link: '/core/agent/agent-create' },
+              { text: '多 Agent 协作', link: '/core/agent/multi-agent' },
             ]
           },
           {
             text: 'MCP',
             items: [
-              { text: 'MCP 详解', link: '/ai/mcp' },
-              { text: 'Awesome MCP Servers', link: '/ai/awesome-mcp-servers' },
+              { text: 'MCP 详解', link: '/core/mcp/' },
+              { text: 'Awesome MCP Servers', link: '/core/mcp/awesome-mcp-servers' },
             ]
           },
           {
             text: 'LSP',
             items: [
-              { text: 'LSP 详解', link: '/ai/lsp' },
+              { text: 'LSP 详解', link: '/core/lsp' },
             ]
           },
           {
             text: 'Skills',
             items: [
-              { text: 'Skill 工作流', link: '/skills/' },
-              { text: 'Matt Pocock Skills', link: '/ai/mattpocock-skills' },
+              { text: 'Skill 工作流', link: '/core/skills/' },
+              { text: 'Matt Pocock Skills', link: '/core/skills/mattpocock-skills' },
             ]
           },
           {
             text: 'Prompt',
             items: [
-              { text: 'Prompt 实战', link: '/ai/prompt' },
+              { text: 'Prompt 实战', link: '/core/prompt' },
             ]
           },
           {
             text: 'RAG',
             items: [
-              { text: 'RAG 检索增强', link: '/ai/rag' },
+              { text: 'RAG 检索增强', link: '/core/rag' },
             ]
           },
           {
             text: 'Function Calling',
             items: [
-              { text: 'Function Calling', link: '/ai/function-calling' },
+              { text: 'Function Calling', link: '/core/function-calling' },
             ]
           },
           {
             text: 'Embedding',
             items: [
-              { text: 'Embedding', link: '/ai/embedding' },
+              { text: 'Embedding', link: '/core/embedding' },
             ]
           },
         ]
       },
       {
         text: 'AI 进阶',
-        activeMatch: '^/ai-knowledge/',
+        activeMatch: '^/advanced/',
         items: [
           {
             text: 'AI 实验室',
             items: [
-              { text: '本地模型部署', link: '/ai-knowledge/lab/local-deployment' },
-              { text: '模型微调入门', link: '/ai-knowledge/lab/fine-tuning' },
+              { text: '本地模型部署', link: '/advanced/lab/local-deployment' },
+              { text: '模型微调入门', link: '/advanced/lab/fine-tuning' },
             ]
           },
           {
             text: 'AI 洞察',
             items: [
-              { text: '行业动态', link: '/ai-knowledge/insights/trends' },
-              { text: '精选文章', link: '/ai-knowledge/insights/curated-articles' },
+              { text: '行业动态', link: '/advanced/insights/trends' },
+              { text: '精选文章', link: '/advanced/insights/curated-articles' },
             ]
           },
         ]
@@ -112,87 +112,87 @@ export default withMermaid(defineConfig({
         text: 'AI 工具',
         collapsed: false,
         items: [
-          { text: '命令合集', link: '/ai/commands' },
-          { text: 'Cursor', link: '/cursor/intro' },
-          { text: 'GitHub Copilot', link: '/copilot/intro' },
-          { text: 'Claude Code', link: '/claude/intro' },
-          { text: 'Codex CLI', link: '/codex/intro' },
+          { text: '命令合集', link: '/tools/commands' },
+          { text: 'Cursor', link: '/tools/cursor/intro' },
+          { text: 'GitHub Copilot', link: '/tools/copilot/intro' },
+          { text: 'Claude Code', link: '/tools/claude/intro' },
+          { text: 'Codex CLI', link: '/tools/codex/intro' },
         ]
       },
       {
         text: 'Agent',
         collapsed: false,
         items: [
-          { text: 'Agent 概念与原理', link: '/ai/agent/agent-intro' },
-          { text: 'Agent 实战开发', link: '/ai/agent/agent-create' },
-          { text: '多 Agent 协作', link: '/ai/agent/multi-agent' },
+          { text: 'Agent 概念与原理', link: '/core/agent/agent-intro' },
+          { text: 'Agent 实战开发', link: '/core/agent/agent-create' },
+          { text: '多 Agent 协作', link: '/core/agent/multi-agent' },
         ]
       },
       {
         text: 'MCP',
         collapsed: false,
         items: [
-          { text: 'MCP 详解', link: '/ai/mcp' },
-          { text: 'Awesome MCP Servers', link: '/ai/awesome-mcp-servers' },
+          { text: 'MCP 详解', link: '/core/mcp/' },
+          { text: 'Awesome MCP Servers', link: '/core/mcp/awesome-mcp-servers' },
         ]
       },
       {
         text: 'LSP',
         collapsed: false,
         items: [
-          { text: 'LSP 详解', link: '/ai/lsp' },
+          { text: 'LSP 详解', link: '/core/lsp' },
         ]
       },
       {
         text: 'Skills',
         collapsed: false,
         items: [
-          { text: 'Skill 工作流', link: '/skills/' },
-          { text: 'Matt Pocock Skills', link: '/ai/mattpocock-skills' },
+          { text: 'Skill 工作流', link: '/core/skills/' },
+          { text: 'Matt Pocock Skills', link: '/core/skills/mattpocock-skills' },
         ]
       },
       {
         text: 'Prompt',
         collapsed: false,
         items: [
-          { text: 'Prompt 实战', link: '/ai/prompt' },
+          { text: 'Prompt 实战', link: '/core/prompt' },
         ]
       },
       {
         text: 'RAG',
         collapsed: false,
         items: [
-          { text: 'RAG 检索增强', link: '/ai/rag' },
+          { text: 'RAG 检索增强', link: '/core/rag' },
         ]
       },
       {
         text: 'Function Calling',
         collapsed: false,
         items: [
-          { text: 'Function Calling', link: '/ai/function-calling' },
+          { text: 'Function Calling', link: '/core/function-calling' },
         ]
       },
       {
         text: 'Embedding',
         collapsed: false,
         items: [
-          { text: 'Embedding', link: '/ai/embedding' },
+          { text: 'Embedding', link: '/core/embedding' },
         ]
       },
       {
         text: 'AI 实验室',
         collapsed: true,
         items: [
-          { text: '本地模型部署', link: '/ai-knowledge/lab/local-deployment' },
-          { text: '模型微调入门', link: '/ai-knowledge/lab/fine-tuning' },
+          { text: '本地模型部署', link: '/advanced/lab/local-deployment' },
+          { text: '模型微调入门', link: '/advanced/lab/fine-tuning' },
         ]
       },
       {
         text: 'AI 洞察',
         collapsed: true,
         items: [
-          { text: '行业动态', link: '/ai-knowledge/insights/trends' },
-          { text: '精选文章', link: '/ai-knowledge/insights/curated-articles' },
+          { text: '行业动态', link: '/advanced/insights/trends' },
+          { text: '精选文章', link: '/advanced/insights/curated-articles' },
         ]
       },
     ],
@@ -212,7 +212,7 @@ export default withMermaid(defineConfig({
 
     footer: {
       message: '个人 AI 工具知识库，持续更新',
-      copyright: '更新于 2026-05-06'
+      copyright: '更新于 2026-05-11'
     },
 
     search: {
