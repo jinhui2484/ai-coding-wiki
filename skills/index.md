@@ -4,7 +4,7 @@ Claude Code 的 Skill（技能）是以 Markdown 文件定义的**可复用工�
 
 | 来源 | 标记 | 说明 |
 |------|------|------|
-| 本地私有 skill | `本地` | 存放于 `~/wyze-plugin-skills/`，已同步到 `~/.claude/skills/` |
+| 本地私有 skill | `本地` | 存放于 `~/my-skills/`，已同步到 `~/.claude/skills/` |
 | gstack（Garry Tan） | `gstack` | 需独立安装，依赖二进制工具，见 [gstack 安装说明](https://github.com/garrytan/gstack) |
 
 ---
@@ -164,7 +164,7 @@ Claude：我要质疑你的框架。你说「简报 App」，但你描述的痛�
 你：开始开发蓝牙重连功能
 
 /using-git-worktrees
-→ 创建 ../plugin-wyze-lock-ios-feat-ble-reconnect/
+→ 创建 ../my-plugin-ios-feat-ble-reconnect/
 → 基于 main 分支，checkout 到 feat/ble-reconnect
 → 主工作区继续保留你当前的开发状态
 ```
@@ -537,7 +537,7 @@ Claude：我要质疑你的框架。你说「简报 App」，但你描述的痛�
 **能力：**
 - Skill 即 TDD：先写触发条件和期望行为，再写实现
 - 验证步骤：写完 → 触发测试 → 确认行为符合预期
-- 遵循 Wyze skill 规范：frontmatter / 结构 / 与其他 skill 的集成声明
+- 遵循团队 skill 规范：frontmatter / 结构 / 与其他 skill 的集成声明
 
 ---
 
@@ -674,3 +674,7 @@ Claude：我要质疑你的框架。你说「简报 App」，但你描述的痛�
   cd ~/.claude/skills/gstack && ./setup
   ```
 :::
+
+---
+
+> **参考来源：** [gstack · Garry Tan's Claude Code skill pack](https://github.com/garrytan/gstack)

@@ -4,9 +4,11 @@ import { withMermaid } from 'vitepress-plugin-mermaid'
 export default withMermaid(defineConfig({
   lang: 'zh-CN',
   title: 'AI 工具知识库',
-  description: '覆盖 Claude Code、Skill 工作流、AI 编程工具的实用知识库，持续更新',
+  description: '从工具到原理，系统梳理 AI 编程的核心知识体系',
   base: '/claude-docs/',
   lastUpdated: true,
+
+  appearance: false,
 
   themeConfig: {
     logo: '/logo.svg',
@@ -15,65 +17,182 @@ export default withMermaid(defineConfig({
     nav: [
       { text: '首页', link: '/' },
       {
-        text: 'Claude Code',
-        activeMatch: '^/claude/',
+        text: 'AI 工具',
+        activeMatch: '^/(cursor|claude|copilot|codex|ai/commands)',
         items: [
-          { text: '命令手册', link: '/claude/commands' },
+          { text: '命令合集', link: '/ai/commands' },
+          { text: 'Cursor', link: '/cursor/intro' },
+          { text: 'GitHub Copilot', link: '/copilot/intro' },
+          { text: 'Claude Code', link: '/claude/intro' },
+          { text: 'Codex CLI', link: '/codex/intro' },
+        ]
+      },
+      {
+        text: 'AI 核心机制',
+        activeMatch: '^/ai/(agent|mcp|awesome|lsp|mattpocock|prompt|rag)|^/skills/',
+        items: [
           {
-            text: 'Agent 开发',
+            text: 'Agent',
             items: [
-              { text: 'Agent 入门', link: '/claude/agent-intro' },
-              { text: '创建 Agent', link: '/claude/agent-create' },
-              { text: '多 Agent 协调', link: '/claude/multi-agent' },
+              { text: 'Agent 概念与原理', link: '/ai/agent/agent-intro' },
+              { text: 'Agent 实战开发', link: '/ai/agent/agent-create' },
+              { text: '多 Agent 协作', link: '/ai/agent/multi-agent' },
+            ]
+          },
+          {
+            text: 'MCP',
+            items: [
+              { text: 'MCP 详解', link: '/ai/mcp' },
+              { text: 'Awesome MCP Servers', link: '/ai/awesome-mcp-servers' },
+            ]
+          },
+          {
+            text: 'LSP',
+            items: [
+              { text: 'LSP 详解', link: '/ai/lsp' },
+            ]
+          },
+          {
+            text: 'Skills',
+            items: [
+              { text: 'Skill 工作流', link: '/skills/' },
+              { text: 'Matt Pocock Skills', link: '/ai/mattpocock-skills' },
+            ]
+          },
+          {
+            text: 'Prompt',
+            items: [
+              { text: 'Prompt 实战', link: '/ai/prompt' },
+            ]
+          },
+          {
+            text: 'RAG',
+            items: [
+              { text: 'RAG 检索增强', link: '/ai/rag' },
+            ]
+          },
+          {
+            text: 'Function Calling',
+            items: [
+              { text: 'Function Calling', link: '/ai/function-calling' },
+            ]
+          },
+          {
+            text: 'Embedding',
+            items: [
+              { text: 'Embedding', link: '/ai/embedding' },
             ]
           },
         ]
       },
       {
-        text: 'Copilot CLI',
-        activeMatch: '^/copilot/',
+        text: 'AI 进阶',
+        activeMatch: '^/ai-knowledge/',
         items: [
-          { text: '命令手册', link: '/copilot/commands' },
-        ]
-      },
-      {
-        text: 'AI 大合集',
-        activeMatch: '^/skills/',
-        items: [
-          { text: 'Skill 工作流', link: '/skills/' },
+          {
+            text: 'AI 实验室',
+            items: [
+              { text: '本地模型部署', link: '/ai-knowledge/lab/local-deployment' },
+              { text: '模型微调入门', link: '/ai-knowledge/lab/fine-tuning' },
+            ]
+          },
+          {
+            text: 'AI 洞察',
+            items: [
+              { text: '行业动态', link: '/ai-knowledge/insights/trends' },
+              { text: '精选文章', link: '/ai-knowledge/insights/curated-articles' },
+            ]
+          },
         ]
       },
     ],
 
     sidebar: [
       {
-        text: 'CLAUDE CODE',
+        text: 'AI 工具',
         collapsed: false,
         items: [
-          { text: '命令手册', link: '/claude/commands' },
+          { text: '命令合集', link: '/ai/commands' },
+          { text: 'Cursor', link: '/cursor/intro' },
+          { text: 'GitHub Copilot', link: '/copilot/intro' },
+          { text: 'Claude Code', link: '/claude/intro' },
+          { text: 'Codex CLI', link: '/codex/intro' },
         ]
       },
       {
-        text: 'AGENT 开发',
+        text: 'Agent',
         collapsed: false,
         items: [
-          { text: 'Agent 入门', link: '/claude/agent-intro' },
-          { text: '创建 Agent', link: '/claude/agent-create' },
-          { text: '多 Agent 协调', link: '/claude/multi-agent' },
+          { text: 'Agent 概念与原理', link: '/ai/agent/agent-intro' },
+          { text: 'Agent 实战开发', link: '/ai/agent/agent-create' },
+          { text: '多 Agent 协作', link: '/ai/agent/multi-agent' },
         ]
       },
       {
-        text: 'COPILOT CLI',
+        text: 'MCP',
         collapsed: false,
         items: [
-          { text: '命令手册', link: '/copilot/commands' },
+          { text: 'MCP 详解', link: '/ai/mcp' },
+          { text: 'Awesome MCP Servers', link: '/ai/awesome-mcp-servers' },
         ]
       },
       {
-        text: 'AI 大合集',
+        text: 'LSP',
+        collapsed: false,
+        items: [
+          { text: 'LSP 详解', link: '/ai/lsp' },
+        ]
+      },
+      {
+        text: 'Skills',
         collapsed: false,
         items: [
           { text: 'Skill 工作流', link: '/skills/' },
+          { text: 'Matt Pocock Skills', link: '/ai/mattpocock-skills' },
+        ]
+      },
+      {
+        text: 'Prompt',
+        collapsed: false,
+        items: [
+          { text: 'Prompt 实战', link: '/ai/prompt' },
+        ]
+      },
+      {
+        text: 'RAG',
+        collapsed: false,
+        items: [
+          { text: 'RAG 检索增强', link: '/ai/rag' },
+        ]
+      },
+      {
+        text: 'Function Calling',
+        collapsed: false,
+        items: [
+          { text: 'Function Calling', link: '/ai/function-calling' },
+        ]
+      },
+      {
+        text: 'Embedding',
+        collapsed: false,
+        items: [
+          { text: 'Embedding', link: '/ai/embedding' },
+        ]
+      },
+      {
+        text: 'AI 实验室',
+        collapsed: true,
+        items: [
+          { text: '本地模型部署', link: '/ai-knowledge/lab/local-deployment' },
+          { text: '模型微调入门', link: '/ai-knowledge/lab/fine-tuning' },
+        ]
+      },
+      {
+        text: 'AI 洞察',
+        collapsed: true,
+        items: [
+          { text: '行业动态', link: '/ai-knowledge/insights/trends' },
+          { text: '精选文章', link: '/ai-knowledge/insights/curated-articles' },
         ]
       },
     ],
@@ -102,7 +221,7 @@ export default withMermaid(defineConfig({
 
     outline: {
       label: '本页目录',
-      level: [2, 3]
+      level: 2
     },
 
     docFooter: {

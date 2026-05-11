@@ -28,18 +28,6 @@ npm run build      # 构建静态文件 → .vitepress/dist/
 npm run preview    # 本地预览构建产物
 ```
 
-部署到 GitHub Pages（推送即自动部署）：
-
-```bash
-git push github main
-```
-
-同步代码到 Gitee：
-
-```bash
-git push origin main
-```
-
 ## 架构
 
 **VitePress** 静态站点生成器，内容全部为 Markdown，配合 `vitepress-plugin-mermaid` 支持 Mermaid 图表。
@@ -47,27 +35,37 @@ git push origin main
 ### 配置入口
 
 `.vitepress/config.ts` — 所有导航（`nav`）和侧边栏（`sidebar`）都在这里维护：
-- `nav`：顶部导航，Claude Code 和 Copilot CLI 为下拉组，Skill 工作流为独立链接
-- `sidebar`：按路径前缀分区（`/claude/`、`/copilot/`、`/skills/`），各区独立侧边栏
+- `nav`：三大顶级分组（AI 工具、AI 核心机制、AI 进阶），每组内用嵌套 `items` 实现子分组下拉
+- `sidebar`：全局统一侧边栏，按内容分 10+ 个 group（AI 工具、Agent、MCP、LSP、Skills、Prompt、RAG、Function Calling、Embedding、AI 实验室、AI 洞察）
+
+### 三大内容板块
+
+| 板块 | 路径 | 内容 |
+|------|------|------|
+| 🛠️ AI 工具 | `cursor/`、`claude/`、`copilot/`、`codex/`、`ai/commands.md` | 五大 AI 编码工具介绍 + 命令对照表 |
+| 🧩 AI 核心机制 | `ai/agent/`、`ai/mcp.md`、`ai/lsp.md`、`skills/`、`ai/prompt.md`、`ai/rag.md`、`ai/function-calling.md`、`ai/embedding.md` | Agent / MCP / LSP / Skills / Prompt / RAG / Function Calling / Embedding |
+| 📚 AI 进阶 | `ai-knowledge/lab/`、`ai-knowledge/insights/` | 本地部署、模型微调、行业动态、精选文章 |
+
+### 首页结构
+
+`index.md` — `layout: home`，包含：
+- Hero 区（标题 + tagline）
+- 关于本站（团队表格：三大板块角色描述）
+- 知识目录（`<details>` 折叠树，根节点默认展开，子节点默认收起）
+- 每个子分组有角色描述（`<span class="node-desc">`）
+- 即将更新区（灰色样式）
+- 底部 CSS（树样式、node-desc、leaf 样式等）
 
 ### 主题
 
-`.vitepress/theme/style.css` — 品牌色（暖橙 `#d97757`）、深色模式背景（`#09090b`）、侧边栏分组标题 uppercase 样式。`.vitepress/theme/index.ts` 仅注册自定义 404 页面和 style.css。
-
-### 内容目录
-
-| 路径 | 内容 |
-|------|------|
-| `index.md` | 首页（VitePress `layout: home`，含自定义卡片 CSS） |
-| `claude/` | Claude Code CLI 文档（命令手册 + Agent 开发系列） |
-| `copilot/` | GitHub Copilot CLI 文档 |
-| `skills/` | Skill 工作流全景手册 |
+`.vitepress/theme/style.css` — 品牌色（青色 `#1aa09a`）、深色模式已关闭（`appearance: false`）。
 
 ### 新增文章流程
 
 1. 在对应目录新建 `.md` 文件
 2. 在 `config.ts` 的 `nav`（如需）和 `sidebar` 对应路径块中添加 `{ text, link }` 条目
-3. `npm run build` 验证无报错后推送
+3. 同步更新 `index.md` 首页知识目录树（篇数 badge、树节点）
+4. `npm run build` 验证无报错后推送
 
 ### 部署与同步
 
@@ -85,3 +83,37 @@ git push origin main
 - 构建流程：`checkout` → `setup-node@20` → `npm ci` → `npm run build` → 部署到 Pages
 
 **VitePress Base Path：** `base: '/claude-docs/'`（非 `username.github.io` 仓库必须设置）
+
+## 用户偏好与工作习惯
+
+以下是站长日常操作中沉淀的偏好，后续 session 遵循：
+
+### 内容规范
+- **敏感词禁令**：所有发布内容禁止出现 Wyze、wyzelabs、wpk、Lock、Camera、DX_LL、CRD、Palmer、Bolt、Palm 等公司/产品标识
+- **占位页面格式**：新建占位页用 `::: tip 📝 待完善` 标记，保持结构完整但标明未完成
+- **工具排序**：AI 工具按市场用户量排序（Cursor > GitHub Copilot > Claude Code > Codex CLI）
+- **命令合集始终置顶**：跨工具速查表放在所有工具之前
+
+### 首页设计偏好
+- **折叠树**：根节点默认展开（`open`），子节点默认收起（无 `open`）
+- **角色描述**：每个子分组带 emoji + 角色名 + 一句话职责（如 🕵️ 特工 — AI 自主决策与任务执行的核心）
+- **篇数 badge**：每个节点显示包含文章数
+- **间距紧凑**：Hero 与正文之间不要过大间距（已覆盖 `.VPHero { padding-bottom: 0 }`)
+
+### 导航结构偏好
+- **三大板块**：AI 工具（军火库）、AI 核心机制（技术中台）、AI 进阶（图书馆）
+- **新增内容归类原则**：工具类 → AI 工具；底层原理/协议 → AI 核心机制；实验/洞察 → AI 进阶
+- **Cursor 归属 AI 工具**（GUI 编辑器也是工具，不单独分类）
+
+### 工作流偏好
+- **先预览再部署**：改完先 `npm run dev` 本地看效果，确认后再推远程
+- **批量修改时同步三处**：nav（config.ts）+ sidebar（config.ts）+ 首页树（index.md）
+- **文档写作用 background agent**：长文档（200+ 行）交给 general-purpose agent 后台写，主线程继续其他工作
+- **简短指令风格**：用户常用简写（"jixu" = 继续、"都要加" = 全部添加、"帮我" = 直接执行不问），尽量少问多做
+- **一次只做一件事**：每次修改聚焦一个主题，不混入无关改动
+
+### 技术约束备忘
+- VitePress sidebar 最多 2 级嵌套（group → item），无法 3 级
+- `index.md` 中全角冒号（efbc9a）会导致 edit 工具匹配失败，遇到时用 bash/Python 处理
+- 首页 HTML 中链接用相对路径（`./path`），因为 `base: '/claude-docs/'`
+- 暗色模式已关闭（`appearance: false`）
