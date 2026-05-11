@@ -15,11 +15,10 @@ open http://localhost:5173
 当用户说"部署"、"发布"、"推到远程"、"上线"、"推远程"时，依次执行：
 
 1. 若有未提交改动，先提交（commit message 根据改动内容自动生成，格式 `docs: <描述>`）
-2. `git push origin main`
-3. `npm run build`
-4. `npx netlify deploy --prod --dir=.vitepress/dist --message "$(git log -1 --pretty='%h %s')"`
+2. `git push github main`（触发 GitHub Actions 自动部署到 GitHub Pages）
+3. `git push origin main`（同步代码到 Gitee）
 
-全部成功后报告 Netlify 生产地址。
+全部成功后报告 GitHub Pages 地址：`https://jinhui324.github.io/claude-docs/`
 
 ## Commands
 
@@ -29,14 +28,13 @@ npm run build      # 构建静态文件 → .vitepress/dist/
 npm run preview    # 本地预览构建产物
 ```
 
-部署到 Netlify（已链接 `jh-claude-docs` 项目）：
+部署到 GitHub Pages（推送即自动部署）：
 
 ```bash
-npm run build
-npx netlify deploy --prod --dir=.vitepress/dist
+git push github main
 ```
 
-推送到 Gitee（remote 已配置 HTTPS + macOS Keychain 凭证）：
+同步代码到 Gitee：
 
 ```bash
 git push origin main
@@ -73,5 +71,5 @@ git push origin main
 
 ### 部署
 
-- **Netlify**：`jh-claude-docs` 项目，生产地址 `https://jh-claude-docs.netlify.app`；`.netlify/` 目录已在 `.gitignore` 中
-- **Gitee**：`https://gitee.com/jinhuizhang/claude-docs`，remote 使用 HTTPS，凭证存于 macOS Keychain
+- **GitHub Pages**：`jinhui324.github.io/claude-docs`，推送 main 分支自动通过 GitHub Actions 部署
+- **Gitee**：`https://gitee.com/jinhuizhang/claude-docs`，仅同步代码，不部署
