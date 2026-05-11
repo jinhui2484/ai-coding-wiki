@@ -66,13 +66,13 @@ hero:
 
 <div class="module-group">
 
-### Skill 工作流
+### AI 大合集
 
 <div class="card-row">
   <a class="card" href="./skills/">
     <div class="card-icon">⚡</div>
     <div class="card-body">
-      <div class="card-title">Skill 全景手册</div>
+      <div class="card-title">Skill 工作流</div>
       <div class="card-desc">18 个本地 Skill + 21 个 gstack Skill，覆盖开发全流程，含触发词与实战示例</div>
     </div>
   </a>
