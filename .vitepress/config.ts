@@ -22,7 +22,13 @@ export default withMermaid(defineConfig({
         items: [
           { text: '命令合集', link: '/tools/commands' },
           { text: 'Cursor', link: '/tools/cursor/intro' },
-          { text: 'GitHub Copilot', link: '/tools/copilot/intro' },
+          {
+            text: 'GitHub Copilot',
+            items: [
+              { text: '简介', link: '/tools/copilot/intro' },
+              { text: '自定义状态栏', link: '/tools/copilot/statusline-plugin' },
+            ]
+          },
           { text: 'Claude Code', link: '/tools/claude/intro' },
           { text: 'Codex CLI', link: '/tools/codex/intro' },
         ]
@@ -56,6 +62,7 @@ export default withMermaid(defineConfig({
             text: 'Skills',
             items: [
               { text: 'Skill 工作流', link: '/core/skills/' },
+              { text: 'Skill 组合实战', link: '/core/skills/skill-combination' },
               { text: 'Matt Pocock Skills', link: '/core/skills/mattpocock-skills' },
             ]
           },
@@ -114,7 +121,14 @@ export default withMermaid(defineConfig({
         items: [
           { text: '命令合集', link: '/tools/commands' },
           { text: 'Cursor', link: '/tools/cursor/intro' },
-          { text: 'GitHub Copilot', link: '/tools/copilot/intro' },
+          {
+            text: 'GitHub Copilot',
+            collapsed: true,
+            items: [
+              { text: '简介', link: '/tools/copilot/intro' },
+              { text: '自定义状态栏', link: '/tools/copilot/statusline-plugin' },
+            ]
+          },
           { text: 'Claude Code', link: '/tools/claude/intro' },
           { text: 'Codex CLI', link: '/tools/codex/intro' },
         ]
@@ -148,6 +162,7 @@ export default withMermaid(defineConfig({
         collapsed: false,
         items: [
           { text: 'Skill 工作流', link: '/core/skills/' },
+          { text: 'Skill 组合实战', link: '/core/skills/skill-combination' },
           { text: 'Matt Pocock Skills', link: '/core/skills/mattpocock-skills' },
         ]
       },
