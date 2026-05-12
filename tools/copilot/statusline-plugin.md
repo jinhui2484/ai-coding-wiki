@@ -1071,7 +1071,238 @@ Phase 3 → + tmux TUI（按需，当一行状态栏不够用时）
 
 ---
 
-## 七、相关资源
+## 七、具体方案：Copilot HUD（方案二 + 方案三组合实现）
+
+基于上述调研，选定**Plugin Hooks 采集 + tmux 分屏展示**的组合方案，命名为 **Copilot HUD**。
+
+### 最终效果
+
+```
+┌──────────────────────────────┬───────────────────────────┐
+│                              │ 🖥️  Copilot HUD            │
+│                              │ ─────────────────────────  │
+│                              │ 📁 ~/Desktop/Wyze/lock-ios │
+│                              │ 🤖 claude-opus-4.6         │
+│   Copilot CLI                │ 📊 Context: 45% ████░░░░  │
+│   （正常交互）                │ ─────────────────────────  │
+│                              │ ╭─ Tasks ───────────────╮ │
+│                              │ │ ⟳ build-auth    2m03s │ │
+│                              │ │ ✓ write-tests   done  │ │
+│                              │ │ ✗ deploy        fail  │ │
+│                              │ ╰───────────────────────╯ │
+│                              │ ╭─ Files Changed ───────╮ │
+│                              │ │ +42 src/auth.swift     │ │
+│                              │ │ +15 src/authTests.swift│ │
+│                              │ ╰───────────────────────╯ │
+│                              │ ╭─ Tools ───────────────╮ │
+│                              │ │ edit ×12  bash ×5      │ │
+│                              │ │ grep ×8   view ×3      │ │
+│                              │ ╰───────────────────────╯ │
+│                              │ ⏱️ Session: 18m | Err: 0   │
+└──────────────────────────────┴───────────────────────────┘
+```
+
+### 架构设计
+
+```
+Copilot CLI ──hook 事件──→ write-state.sh ──写入──→ ~/.copilot/hud/
+                                                      ├── state.json      (当前快照)
+                                                      └── events.jsonl    (事件日志)
+                                                           ↑
+tmux 右 pane ──watch.sh──→ 每秒轮询读取 ─────→ 渲染面板
+```
+
+核心分层：
+
+- **Hooks 层**：采集数据，写本地文件，不返回 `additionalContext` → **零 token 消耗**
+- **渲染层**：独立 shell 进程，轮询文件，纯本地操作 → **零 token 消耗**
+- **tmux 层**：内存中的 session，同一终端窗口分屏 → **无磁盘残留**
+
+### 环境依赖
+
+| 依赖 | 安装方式 | 用途 |
+|------|---------|------|
+| `tmux` | `brew install tmux` | 终端分屏 |
+| `jq` | `brew install jq` | JSON 解析 |
+
+### 目录结构
+
+**仓库目录**（纳入 `wyze-plugin-skills` 管理，安装时同步）：
+
+```
+~/wyze-plugin-skills/
+├── copilot-hud/                    # HUD 插件根目录
+│   ├── plugin.json                 # Copilot Plugin 清单
+│   ├── hooks.json                  # 生命周期钩子定义
+│   ├── scripts/
+│   │   ├── on-session-start.sh     # sessionStart → 初始化 state.json
+│   │   ├── on-tool-use.sh          # postToolUse → 记录工具调用 + 文件变更
+│   │   ├── on-notification.sh      # notification → 记录任务状态变化
+│   │   ├── on-subagent.sh          # subagentStart/Stop → 记录子 agent
+│   │   └── on-error.sh             # errorOccurred → 记录错误
+│   ├── watch.sh                    # TUI 渲染脚本（tmux 右 pane 运行）
+│   └── copilot-hud.sh              # 一键启动脚本（创建 tmux session）
+│
+├── install.sh                      # 安装脚本（新增 HUD 可选步骤）
+└── ...
+```
+
+**运行时数据目录**（不入仓库，自动创建）：
+
+```
+~/.copilot/hud/
+├── state.json                      # 当前状态快照（原子写入）
+└── events.jsonl                    # 事件追加日志（按 session 累积）
+```
+
+### 数据格式
+
+**state.json（当前快照）**：
+
+```json
+{
+  "updated_at": "2026-05-12T04:30:00Z",
+  "session": {
+    "started_at": "2026-05-12T04:12:00Z",
+    "cwd": "~/Desktop/Wyze/lock-ios",
+    "model": "claude-opus-4.6"
+  },
+  "tasks": [
+    { "id": "build-auth", "status": "running", "started_at": "..." },
+    { "id": "write-tests", "status": "done", "started_at": "...", "ended_at": "..." },
+    { "id": "deploy", "status": "failed", "started_at": "...", "error": "exit 1" }
+  ],
+  "files_changed": [
+    { "path": "src/auth.swift", "tool": "edit", "lines": "+42" },
+    { "path": "src/authTests.swift", "tool": "create", "lines": "+15" }
+  ],
+  "tools": {
+    "edit": 12, "bash": 5, "grep": 8, "view": 3, "create": 2
+  },
+  "errors": 0
+}
+```
+
+**events.jsonl（追加日志，每行一个事件）**：
+
+```jsonl
+{"ts":"...","type":"session_start","cwd":"...","model":"claude-opus-4.6"}
+{"ts":"...","type":"tool_use","tool":"edit","path":"src/auth.swift"}
+{"ts":"...","type":"subagent_start","name":"build-auth"}
+{"ts":"...","type":"subagent_stop","name":"build-auth","result":"success"}
+{"ts":"...","type":"notification","subtype":"agent_completed","title":"..."}
+```
+
+### hooks.json 设计
+
+```json
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [{
+      "type": "command",
+      "bash": "$HUD_DIR/scripts/on-session-start.sh"
+    }],
+    "postToolUse": [{
+      "type": "command",
+      "bash": "$HUD_DIR/scripts/on-tool-use.sh"
+    }],
+    "notification": [{
+      "type": "command",
+      "bash": "$HUD_DIR/scripts/on-notification.sh",
+      "matcher": "agent_completed|shell_completed|shell_detached_completed|agent_idle"
+    }],
+    "subagentStart": [{
+      "type": "command",
+      "bash": "$HUD_DIR/scripts/on-subagent.sh"
+    }],
+    "subagentStop": [{
+      "type": "command",
+      "bash": "$HUD_DIR/scripts/on-subagent.sh"
+    }],
+    "errorOccurred": [{
+      "type": "command",
+      "bash": "$HUD_DIR/scripts/on-error.sh"
+    }]
+  }
+}
+```
+
+**关键设计**：所有 hook 脚本只写文件，不返回 `additionalContext` → **零 token 消耗**。
+
+### 面板显示信息
+
+| 区域 | 显示内容 | 数据来源 |
+|------|---------|---------|
+| Header | HUD 标题 | 静态 |
+| 工程目录 | 当前 cwd | `sessionStart` hook |
+| 模型 | 当前使用的模型名 | `sessionStart` hook |
+| 上下文 | 占用百分比 + 进度条 | `statusLine.command` stdin（待验证） |
+| 任务列表 | 运行中/完成/失败 + 耗时 | `notification` / `subagentStart` / `subagentStop` |
+| 文件变更 | 修改的文件列表 + 行数 | `postToolUse`（过滤 edit/create） |
+| 工具统计 | 各工具调用次数 | `postToolUse` |
+| Session 概览 | 持续时间 + 错误数 | 计算得出 |
+
+### 安装流程
+
+在 `install.sh` 中新增可选步骤：
+
+```
+[7/7] 安装 Copilot HUD 监控面板（可选）
+  → 检测 tmux / jq 是否已安装，未安装则提示 brew install
+  → 复制 copilot-hud/ 到 ~/.copilot/plugins/copilot-hud/
+  → chmod +x 所有脚本
+  → ln -sf copilot-hud.sh /usr/local/bin/copilot-hud
+  → mkdir -p ~/.copilot/hud/
+```
+
+### 使用方式
+
+```bash
+# 启动（代替直接 copilot）
+copilot-hud
+
+# 退出
+# 直接在 Copilot 里 Ctrl+D，tmux session 自动销毁
+
+# 临时全屏 Copilot（隐藏右侧面板）
+Ctrl+B → z    # 再按一次恢复分屏
+
+# 切换焦点到右侧面板
+Ctrl+B → →    # 方向键切换 pane
+```
+
+### 资源影响
+
+| 维度 | 影响 |
+|------|------|
+| **Token 消耗** | ❌ 零（hooks 只写文件，面板只读文件） |
+| **内存** | ~7MB（tmux server ~5MB + 监控脚本 ~2MB） |
+| **CPU** | 每秒读一次 JSON 文件，可忽略 |
+| **磁盘** | state.json 几 KB + events.jsonl 按 session 累积（可定期清理） |
+| **网络** | 无 |
+| **对 Copilot 的侵入性** | 无（完全独立进程） |
+
+### 待验证风险
+
+| 风险点 | 说明 | 验证方式 |
+|--------|------|---------|
+| Hook stdin JSON 格式 | 各 hook 实际传什么字段未文档化 | 写探测脚本 dump stdin |
+| `postToolUse` payload | 是否包含文件路径和变更行数 | 同上 |
+| hooks.json 路径变量 | 能否用 `$HOME` 等环境变量 | 实测 |
+| Plugin 安装方式 | `/plugin install` 命令的具体行为 | 实测 |
+| 上下文占用数据 | tmux 面板能否获取到（可能只在 statusLine stdin 中） | 待 statusLine.command 生效后验证 |
+
+### 后续升级路径
+
+1. **Shell → Bubbletea**：如果 shell 渲染不够精致，可用 Go + Bubbletea 重写 `watch.sh`，编译为单二进制
+2. **+ statusLine.command**：等 Copilot CLI 激活此功能后，补充一行概览到原生状态栏
+3. **事件回放**：基于 `events.jsonl` 做历史 session 回放
+4. **多 session 切换**：支持同时监控多个 Copilot session
+
+---
+
+## 八、相关资源
 
 - Copilot CLI 配置目录参考：https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference
 - Copilot CLI Hooks 参考：https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-hooks-reference
