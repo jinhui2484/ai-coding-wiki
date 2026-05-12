@@ -866,7 +866,6 @@ tmux 右 pane ──watch.sh──→ 每秒轮询读取 ─────→ 渲�
 **仓库目录**（纳入 `wyze-plugin-skills` 管理，安装时同步）：
 
 ```
-~/wyze-plugin-skills/
 ├── copilot-hud/                    # HUD 插件根目录
 │   ├── plugin.json                 # Copilot Plugin 清单
 │   ├── hooks.json                  # 生命周期钩子定义
