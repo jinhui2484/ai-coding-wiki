@@ -1,4 +1,4 @@
-# Copilot CLI 终端任务监控：三种方案详解
+# Copilot CLI 终端任务监控：方案详解
 
 ## 一、背景与需求
 
@@ -23,11 +23,10 @@ Copilot CLI 在执行复杂任务时，并不是单线程地只输出一段文�
 - 尽量不打断 Copilot CLI 的正常交互
 - 能按需求从“轻量概览”升级到“完整仪表盘”
 
-这就对应三条实现路线：
+这就对应两条实现路线：
 
-1. 用 `statusLine.command` 做原生底部状态栏
-2. 用 Plugin Hooks 做事件驱动通知
-3. 用 `tmux + TUI + 文件 IPC` 做独立监控面板
+1. 用 Plugin Hooks 做事件驱动通知
+2. 用 `tmux + TUI + 文件 IPC` 做独立监控面板
 
 ---
 
@@ -35,68 +34,13 @@ Copilot CLI 在执行复杂任务时，并不是单线程地只输出一段文�
 
 ### 2.1 `statusLine.command` 机制
 
-Copilot CLI 的主配置文件是 `~/.copilot/settings.json`。文档确认这是用户级全局配置入口，自定义设置都放在这里。
+Copilot CLI 的主配置文件是 `~/.copilot/settings.json`，其中真实存在 `statusLine` 与 `footer.showCustom` 相关配置入口，可用于把外部命令挂到底部状态栏。
 
-其中 `statusLine` 支持把一个外部命令挂到终端底部状态栏：
+按设计，这类命令会在 UI 刷新时执行，脚本从 stdin 读取 session JSON，再把摘要文本写到 stdout 供底部区域渲染。
 
-```json
-{
-  "statusLine": {
-    "type": "command",
-    "command": "/path/to/your-script.sh",
-    "padding": 1
-  },
-  "footer": {
-    "showCustom": true
-  }
-}
-```
+stdin 通常会带上 `model`、`context_window`、`cost`、`rate_limits`、`transcript_path`、`cwd` 等字段，因此它在能力模型上确实适合做概览型 HUD。
 
-这里有两个关键点：
-
-- `type: "command"`：告诉 Copilot CLI，这不是静态文本，而是要执行一个脚本
-- `command`：脚本路径，CLI 刷新 UI 时会调用它
-
-它的工作链路可以理解成：
-
-```text
-Copilot CLI 渲染循环
-       ↓
-fork/exec statusLine.command 指向的脚本
-       ↓
-把当前 session 状态 JSON 写入脚本 stdin
-       ↓
-脚本解析 JSON，并把一行文本写到 stdout
-       ↓
-Copilot CLI 把 stdout 渲染到底部状态栏
-```
-
-stdin 里的 JSON 通常包含这些信息：
-
-- `model`：当前模型 ID / 显示名
-- `context_window`：上下文总量、当前使用量、已用百分比
-- `cost`：当前 session 花费
-- `rate_limits`：配额或时间窗使用情况
-- `transcript_path`：会话 transcript JSONL 文件路径
-- `cwd`：当前工作目录
-
-`footer.showCustom: true` 的作用，是显式打开底部自定义区域。没有它，即使 `statusLine.command` 已经配置，终端底部也不一定显示脚本输出。
-
-这一套机制与 Claude Code 的 `statusLine` API 是同一类工作方式：**脚本不是常驻进程，而是每次 UI 刷新时被重新执行一次**。这也是为什么 [claude-hud](https://github.com/jarrodwatts/claude-hud) 能靠“读 stdin JSON + 读 transcript JSONL”实现实时 HUD，而不需要额外守护进程。
-
-#### 为什么它适合做“概览型监控”
-
-因为它有三个天然优势：
-
-1. **原生嵌入**：直接显示在 Copilot CLI 底部，不改变使用习惯
-2. **零窗口切换**：你不用开第二个 pane
-3. **成本低**：一个脚本就能跑起来
-
-但它也有明确边界：
-
-- 只能输出一小段文本
-- 更适合摘要，不适合详细列表
-- 任务状态如果很多，必须自己做聚合
+**但当前版本实测未生效，暂不可用，保留作为参考。**
 
 ---
 
@@ -227,205 +171,7 @@ TUI 进程轮询或 tail 文件
 
 ---
 
-## 三、方案一：`statusLine.command`（原生状态栏）
-
-### 效果预览
-
-```text
-┌──────────────────────────────────────────┐
-│  Copilot CLI 主界面                        │
-│  ...对话内容...                            │
-│──────────────────────────────────────────│
-│ 🤖 opus | 📊 45% ctx | ⟳ 2 bg | ✓ 1 done │  ← 自定义状态栏
-└──────────────────────────────────────────┘
-```
-
-### 适用场景
-
-适合先快速落地一个“始终可见”的概览栏，重点看：
-
-- 当前模型
-- 上下文使用率
-- 后台任务运行数 / 完成数
-- 费用或限额信息
-
-如果你的目标是“低成本先用起来”，优先做这一种。
-
-### 完整实现步骤
-
-#### Step 1：创建探测脚本，先确认 Copilot 实际传入什么 JSON
-
-先不要急着写正式脚本，第一步是抓真实 stdin。
-
-```bash
-mkdir -p ~/.copilot/statusline
-cat > ~/.copilot/statusline/probe.sh << 'EOF'
-#!/bin/bash
-INPUT=$(cat)
-echo "$INPUT" > "$HOME/.copilot/statusline/stdin-dump.json"
-echo "📡 probe active"
-EOF
-chmod +x ~/.copilot/statusline/probe.sh
-```
-
-这一步的目的不是显示信息，而是验证两个事实：
-
-1. `statusLine.command` 是否真的被执行了
-2. stdin JSON 的字段名到底是什么
-
-#### Step 2：把探测脚本注册到 `settings.json`
-
-> `settings.json` 官方上支持 JSONC。如果你文件里有注释，下面这段 `python3` 会失败；此时先手动去掉注释，或改用你自己的 JSONC 编辑方式。下面命令按“文件内容是合法 JSON”处理。
-
-```bash
-python3 -c "
-import json
-from pathlib import Path
-p = Path.home() / '.copilot' / 'settings.json'
-with open(p) as f:
-    cfg = json.load(f)
-cfg['statusLine'] = {
-    'type': 'command',
-    'command': str(Path.home() / '.copilot' / 'statusline' / 'probe.sh'),
-    'padding': 1
-}
-cfg.setdefault('footer', {})['showCustom'] = True
-with open(p, 'w') as f:
-    json.dump(cfg, f, indent=2, ensure_ascii=False)
-"
-```
-
-#### Step 3：重启 Copilot CLI，检查探测结果
-
-重新启动 Copilot CLI 后执行：
-
-```bash
-cat ~/.copilot/statusline/stdin-dump.json | python3 -m json.tool
-```
-
-你需要重点确认这些字段是否存在：
-
-- `.model.id`
-- `.context_window.used_percentage`
-- `.cost.total_cost_usd`
-- `.transcript_path`
-- `.rate_limits`
-
-如果字段路径和示例不同，以你机器里抓到的实际字段为准。
-
-#### Step 4：准备任务状态文件
-
-`statusLine.command` 本身只拿得到 session 信息，拿不到你想展示的完整任务列表，所以要给它一个额外数据源。
-
-先创建一个最小状态文件：
-
-```bash
-cat > ~/.copilot/statusline/task-state.json << 'EOF'
-{
-  "tasks": []
-}
-EOF
-```
-
-后续可以让 Hook 去更新这个文件；现在先让状态栏具备“读取任务快照”的能力。
-
-#### Step 5：编写正式渲染脚本
-
-依赖：`jq`
-
-```bash
-brew install jq
-```
-
-创建正式脚本：
-
-```bash
-cat > ~/.copilot/statusline/status.sh << 'EOF'
-#!/bin/bash
-INPUT=$(cat)
-TASKS_FILE="$HOME/.copilot/statusline/task-state.json"
-
-MODEL=$(echo "$INPUT" | jq -r '.model.id // .model // "unknown"' 2>/dev/null)
-CTX_RAW=$(echo "$INPUT" | jq -r '.context_window.used_percentage // 0' 2>/dev/null)
-COST_RAW=$(echo "$INPUT" | jq -r '.cost.total_cost_usd // 0' 2>/dev/null)
-
-CTX_PCT=$(printf '%.0f' "${CTX_RAW:-0}" 2>/dev/null || echo 0)
-COST=$(printf '%.2f' "${COST_RAW:-0}" 2>/dev/null || echo 0.00)
-
-RUNNING=0
-DONE=0
-FAILED=0
-
-if [[ -f "$TASKS_FILE" ]]; then
-  RUNNING=$(jq '[.tasks[]? | select(.status == "running")] | length' "$TASKS_FILE" 2>/dev/null || echo 0)
-  DONE=$(jq '[.tasks[]? | select(.status == "done")] | length' "$TASKS_FILE" 2>/dev/null || echo 0)
-  FAILED=$(jq '[.tasks[]? | select(.status == "failed")] | length' "$TASKS_FILE" 2>/dev/null || echo 0)
-fi
-
-printf '🤖 %s | 📊 %s%% ctx | ⟳ %s bg | ✓ %s done | ✗ %s fail | 💰 $%s\n' \
-  "$MODEL" "$CTX_PCT" "$RUNNING" "$DONE" "$FAILED" "$COST"
-EOF
-chmod +x ~/.copilot/statusline/status.sh
-```
-
-#### Step 6：把 `settings.json` 指向正式脚本
-
-```bash
-python3 -c "
-import json
-from pathlib import Path
-p = Path.home() / '.copilot' / 'settings.json'
-with open(p) as f:
-    cfg = json.load(f)
-cfg.setdefault('statusLine', {})['type'] = 'command'
-cfg['statusLine']['command'] = str(Path.home() / '.copilot' / 'statusline' / 'status.sh')
-cfg['statusLine']['padding'] = 1
-cfg.setdefault('footer', {})['showCustom'] = True
-with open(p, 'w') as f:
-    json.dump(cfg, f, indent=2, ensure_ascii=False)
-"
-```
-
-#### Step 7：验证状态栏是否正常显示
-
-重启 Copilot CLI 后，底部应该能看到类似输出：
-
-```text
-🤖 claude-opus-4.6 | 📊 12% ctx | ⟳ 0 bg | ✓ 0 done | ✗ 0 fail | 💰 $0.00
-```
-
-如果看不到：
-
-1. 确认 `footer.showCustom` 为 `true`
-2. 手动执行脚本确认它有 stdout
-3. 检查 `stdin-dump.json` 是否有内容
-4. 确认 `status.sh` 有执行权限
-
-### 底层原理补充
-
-这套方案能成立，本质上是因为 **Copilot CLI 把状态栏当成“可执行渲染器”而不是“静态模板”**。
-
-也就是说，CLI 自己不关心你输出的是模型、任务数，还是 Git 信息；它只做两件事：
-
-1. 把当前 session 的运行时数据喂给脚本
-2. 把脚本返回的一行文本嵌回终端底部
-
-所以你真正要做的，不是“改 Copilot 的 UI”，而是“写一个把 JSON 转成摘要文本的渲染器”。
-
-### Claude HUD 参考
-
-[jarrodwatts/claude-hud](https://github.com/jarrodwatts/claude-hud) 是 Claude Code 上成熟的同类实现，值得直接借鉴它的架构思路：
-
-- 每次 UI 刷新时执行一次，不是守护进程
-- 数据来源是 `stdin JSON + transcript JSONL`
-- 用脚本自己做聚合，再输出一行或多行 HUD
-- 零额外窗口，完全嵌在底部状态栏
-
-如果你后面想把“工具活动、agent 名称、todo 进度”也塞进状态栏，可以继续往 `transcript_path` 方向扩展。
-
----
-
-## 四、方案二：Plugin Hooks 注入（对话流通知）
+## 三、方案一：Plugin Hooks 注入（对话流通知）
 
 ### 效果预览
 
@@ -445,7 +191,7 @@ Assistant: 已派发 3 个后台任务...
 - 把任务状态写入日志 / 状态文件
 - 在对话流里补充系统说明
 
-它尤其适合和方案一、方案三配合使用：**Hook 负责采集事件，状态栏或 TUI 负责展示结果。**
+它尤其适合和方案二配合使用：**Hook 负责采集事件，TUI 负责展示结果。**
 
 ### 完整实现步骤
 
@@ -666,7 +412,7 @@ CLI 生命周期事件 → Hook 脚本 → JSON 输出 → 注入上下文 / 阻
 
 ---
 
-## 五、方案三：`tmux` 分屏 + TUI 监控面板（外部辅助）
+## 四、方案二：`tmux` 分屏 + TUI 监控面板（外部辅助）
 
 ### 效果预览
 
@@ -1023,55 +769,45 @@ Bubbletea 的优势是：
 
 ---
 
-## 六、方案对比总结
+## 五、方案对比总结
 
-| 维度 | 方案一：statusLine | 方案二：Plugin Hooks | 方案三：tmux + TUI |
-|------|-------------------|---------------------|-------------------|
-| 原生度 | ⭐⭐⭐ 内嵌状态栏 | ⭐⭐⭐ 对话流注入 | ⭐ 外部进程 |
-| 信息量 | ⭐ 一行摘要 | ⭐⭐ 文字段落 | ⭐⭐⭐ 完整面板 |
-| 实时性 | ⭐⭐⭐ UI 刷新周期 | ⭐⭐ 事件触发 | ⭐⭐ 1s 轮询 |
-| 额外依赖 | `jq`（或 `node`） | `jq` | `tmux` + `jq` |
-| 启动摩擦 | 无（自动加载） | 无（自动加载） | 需用 `copilot-hud` 启动 |
-| 开发复杂度 | 低（一个脚本） | 中（plugin + hooks + 脚本） | 高（4-5 个文件） |
-| 可视化能力 | 纯文本一行 | 纯文本注入对话 | 框线 / 颜色 / 表格全支持 |
-| 持续可见 | ✅ 始终在底部 | ❌ 混在对话流中 | ✅ 独立面板 |
-| 数据来源 | session stdin JSON | 生命周期事件 JSON | 文件快照 + 事件日志 |
-| 最适合承担的职责 | 运行概览 | 关键事件通知 / 数据采集 | 完整任务仪表盘 |
-| 故障排查难度 | 低 | 中 | 中高 |
-| 适用场景 | 日常监控概览 | 关键事件即时通知 | 完整任务管理仪表盘 |
+| 维度 | 方案一：Plugin Hooks | 方案二：tmux + TUI |
+|------|---------------------|-------------------|
+| **原生度** | ⭐⭐⭐ 对话流注入 | ⭐ 外部进程 |
+| **信息量** | ⭐⭐ 文字段落 | ⭐⭐⭐ 完整面板 |
+| **实时性** | ⭐⭐ 事件触发 | ⭐⭐ 1s 轮询 |
+| **额外依赖** | `jq` | `tmux` + `jq` |
+| **启动摩擦** | 无（自动加载） | 需用 `copilot-hud` 启动 |
+| **开发复杂度** | 中（plugin + hooks + 脚本） | 高（4-5 个文件） |
+| **可视化能力** | 纯文本注入对话 | 框线 / 颜色 / 表格全支持 |
+| **持续可见** | ❌ 混在对话流中 | ✅ 独立面板 |
+| **数据来源** | 生命周期事件 JSON | 文件快照 + 事件日志 |
+| **Token 消耗** | ⚠️ 少量（`additionalContext` 注入上下文） | ❌ 零消耗 |
+| **内存占用** | 可忽略（事件触发，无常驻） | ~7MB（tmux ~5MB + 脚本 ~2MB） |
+| **CPU** | 极低（事件触发） | 极低（每秒读一次文件） |
+| **磁盘写入** | 事件日志（几 KB） | `task-state.json`（几 KB） |
+| **对 Copilot 的侵入性** | 有（注入文字到上下文） | 无（完全独立进程） |
+| **适用场景** | 关键事件即时通知 / 数据采集 | 完整任务管理仪表盘 |
 
-### 资源与性能影响
-
-| 维度 | 方案一：statusLine | 方案二：Plugin Hooks | 方案三：tmux + TUI |
-|------|-------------------|---------------------|-------------------|
-| **Token 消耗** | ❌ 不消耗 | ⚠️ 少量（`additionalContext` 注入对话上下文） | ❌ 不消耗 |
-| **内存占用** | 可忽略（fork 执行完即退出） | 可忽略（事件触发，无常驻） | ~7MB（tmux server ~5MB + 监控脚本 ~2MB） |
-| **CPU 占用** | 极低（UI 刷新时才调用） | 极低（事件触发） | 极低（每秒读一次文件） |
-| **磁盘写入** | 无 | 事件日志（几 KB） | `task-state.json`（几 KB） |
-| **网络流量** | 无 | 无 | 无 |
-| **对 Copilot 对话的侵入性** | 无 | 有（注入文字到上下文，占用 token） | 无（完全独立进程） |
-
-> **Token 影响说明**：方案一和方案三的监控逻辑完全运行在 Copilot CLI 之外（独立脚本/进程），不会进入对话上下文，因此**零 token 消耗**。方案二的 `additionalContext` 会作为系统消息注入到 Copilot 的对话流中，每次注入大约消耗几十到几百个 token，取决于通知内容长度。如果后台任务频繁，累积的 token 开销需要关注。
+> **Token 影响说明**：方案二的监控逻辑完全运行在 Copilot CLI 之外（独立进程），不进入对话上下文，**零 token 消耗**。方案一的 `additionalContext` 会注入到对话流中，每次约消耗几十到几百个 token。后台任务频繁时需关注累积开销。
 
 ### 推荐策略
 
 ```text
-Phase 1 → statusLine.command（先用起来）
-Phase 2 → + Plugin Hooks（补充关键事件通知）
-Phase 3 → + tmux TUI（按需，当一行状态栏不够用时）
+Phase 1 → Plugin Hooks（事件采集 + 通知）
+Phase 2 → + tmux TUI（完整仪表盘）
 ```
 
-三者并不冲突，反而是天然分层：
+两者并不冲突，反而是天然分层：
 
-- `statusLine.command` 负责概览
 - `Plugin Hooks` 负责事件采集和通知
 - `tmux + TUI` 负责完整展示
 
-如果你只选一种，优先选方案一；如果你想做成长期可维护的终端监控体系，最终形态通常是**方案一 + 方案二**，重度用户再叠加方案三。
+如果你只选一种，优先选方案一；如果你想做成长期可维护的终端监控体系，最终形态通常是**方案一 + 方案二**。
 
 ---
 
-## 七、具体方案：Copilot HUD（方案二 + 方案三组合实现）
+## 六、具体方案：Copilot HUD（方案一 + 方案二组合实现）
 
 基于上述调研，选定**Plugin Hooks 采集 + tmux 分屏展示**的组合方案，命名为 **Copilot HUD**。
 
@@ -1302,7 +1038,7 @@ Ctrl+B → →    # 方向键切换 pane
 
 ---
 
-## 八、相关资源
+## 七、相关资源
 
 - Copilot CLI 配置目录参考：https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference
 - Copilot CLI Hooks 参考：https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-hooks-reference
