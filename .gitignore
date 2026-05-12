@@ -4,3 +4,5 @@ node_modules/
 
 # Local Netlify folder
 .netlify
+.vitepress-dev.log
+.vitepress-dev.pid
