@@ -186,7 +186,7 @@ hero:
   </details>
 
   <details class="tree-node sub">
-  <summary><span class="node-title">AI 洞察</span><span class="node-desc">🔭 观察员 — 追踪行业趋势与优质内容</span><span class="node-badge">2 篇</span></summary>
+  <summary><span class="node-title">AI 洞察</span><span class="node-desc">🔭 观察员 — 追踪行业趋势与优质内容</span><span class="node-badge">3 篇</span></summary>
   <div class="tree-children">
     <a class="tree-leaf" href="./advanced/insights/trends">
       <span class="leaf-title">行业动态</span>
@@ -195,6 +195,10 @@ hero:
     <a class="tree-leaf" href="./advanced/insights/curated-articles">
       <span class="leaf-title">精选文章</span>
       <span class="leaf-desc">GitHub / 公众号 / 博客优质文章收藏与点评</span>
+    </a>
+    <a class="tree-leaf" href="./advanced/insights/tech-platforms">
+      <span class="leaf-title">技术内容平台</span>
+      <span class="leaf-desc">视频 / 文章 / 论文 / 播客平台全景对比与 MCP 抓取方案</span>
     </a>
   </div>
   </details>

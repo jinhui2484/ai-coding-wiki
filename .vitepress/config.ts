@@ -108,6 +108,7 @@ export default withMermaid(defineConfig({
             items: [
               { text: '行业动态', link: '/advanced/insights/trends' },
               { text: '精选文章', link: '/advanced/insights/curated-articles' },
+              { text: '技术内容平台', link: '/advanced/insights/tech-platforms' },
             ]
           },
         ]
@@ -208,6 +209,7 @@ export default withMermaid(defineConfig({
         items: [
           { text: '行业动态', link: '/advanced/insights/trends' },
           { text: '精选文章', link: '/advanced/insights/curated-articles' },
+          { text: '技术内容平台', link: '/advanced/insights/tech-platforms' },
         ]
       },
     ],
