@@ -168,7 +168,7 @@ hero:
 <summary>
   <span class="node-icon">📚</span>
   <span class="node-title">AI 进阶</span>
-  <span class="node-badge">4 篇</span>
+  <span class="node-badge">5 篇</span>
 </summary>
 <div class="tree-children">
   <details class="tree-node sub">
@@ -199,6 +199,16 @@ hero:
     <a class="tree-leaf" href="./advanced/insights/tech-platforms">
       <span class="leaf-title">技术内容平台</span>
       <span class="leaf-desc">视频 / 文章 / 论文 / 播客平台全景对比与 MCP 抓取方案</span>
+    </a>
+  </div>
+  </details>
+
+  <details class="tree-node sub">
+  <summary><span class="node-title">AI 成长</span><span class="node-desc">🌱 成长档案 — 记录 AI 能力阶段、短板和提升路线</span><span class="node-badge">1 篇</span></summary>
+  <div class="tree-children">
+    <a class="tree-leaf" href="./advanced/growth/ai-growth-2026-05-18">
+      <span class="leaf-title">AI 成长复盘 2026-05-18</span>
+      <span class="leaf-desc">从 Skill 使用者到 Agent 工作流设计者的能力现状和提升路线</span>
     </a>
   </div>
   </details>

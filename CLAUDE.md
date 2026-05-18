@@ -36,7 +36,7 @@ npm run preview    # 本地预览构建产物
 
 `.vitepress/config.ts` — 所有导航（`nav`）和侧边栏（`sidebar`）都在这里维护：
 - `nav`：三大顶级分组（AI 工具、AI 核心机制、AI 进阶），每组内用嵌套 `items` 实现子分组下拉
-- `sidebar`：全局统一侧边栏，按内容分 10+ 个 group（AI 工具、Agent、MCP、LSP、Skills、Prompt、RAG、Function Calling、Embedding、AI 实验室、AI 洞察）
+- `sidebar`：全局统一侧边栏，按内容分 10+ 个 group（AI 工具、Agent、MCP、LSP、Skills、Prompt、RAG、Function Calling、Embedding、AI 实验室、AI 洞察、AI 成长）
 
 ### 三大内容板块
 
@@ -44,7 +44,7 @@ npm run preview    # 本地预览构建产物
 |------|------|------|
 | 🛠️ AI 工具 | `cursor/`、`claude/`、`copilot/`、`codex/`、`ai/commands.md` | 五大 AI 编码工具介绍 + 命令对照表 |
 | 🧩 AI 核心机制 | `ai/agent/`、`ai/mcp.md`、`ai/lsp.md`、`skills/`、`ai/prompt.md`、`ai/rag.md`、`ai/function-calling.md`、`ai/embedding.md` | Agent / MCP / LSP / Skills / Prompt / RAG / Function Calling / Embedding |
-| 📚 AI 进阶 | `ai-knowledge/lab/`、`ai-knowledge/insights/` | 本地部署、模型微调、行业动态、精选文章 |
+| 📚 AI 进阶 | `advanced/lab/`、`advanced/insights/`、`advanced/growth/` | 本地部署、模型微调、行业动态、精选文章、AI 成长记录 |
 
 ### 首页结构
 

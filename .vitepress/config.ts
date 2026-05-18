@@ -103,14 +103,20 @@ export default withMermaid(defineConfig({
               { text: '模型微调入门', link: '/advanced/lab/fine-tuning' },
             ]
           },
-          {
-            text: 'AI 洞察',
-            items: [
-              { text: '行业动态', link: '/advanced/insights/trends' },
-              { text: '精选文章', link: '/advanced/insights/curated-articles' },
-              { text: '技术内容平台', link: '/advanced/insights/tech-platforms' },
-            ]
-          },
+           {
+             text: 'AI 洞察',
+             items: [
+               { text: '行业动态', link: '/advanced/insights/trends' },
+               { text: '精选文章', link: '/advanced/insights/curated-articles' },
+               { text: '技术内容平台', link: '/advanced/insights/tech-platforms' },
+              ]
+            },
+            {
+              text: 'AI 成长',
+              items: [
+                { text: 'AI 成长复盘 2026-05-18', link: '/advanced/growth/ai-growth-2026-05-18' },
+              ]
+            },
         ]
       },
     ],
@@ -207,9 +213,16 @@ export default withMermaid(defineConfig({
         text: 'AI 洞察',
         collapsed: true,
         items: [
-          { text: '行业动态', link: '/advanced/insights/trends' },
-          { text: '精选文章', link: '/advanced/insights/curated-articles' },
-          { text: '技术内容平台', link: '/advanced/insights/tech-platforms' },
+             { text: '行业动态', link: '/advanced/insights/trends' },
+             { text: '精选文章', link: '/advanced/insights/curated-articles' },
+             { text: '技术内容平台', link: '/advanced/insights/tech-platforms' },
+        ]
+      },
+      {
+        text: 'AI 成长',
+        collapsed: true,
+        items: [
+             { text: 'AI 成长复盘 2026-05-18', link: '/advanced/growth/ai-growth-2026-05-18' },
         ]
       },
     ],
