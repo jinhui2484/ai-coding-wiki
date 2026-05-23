@@ -5,7 +5,7 @@ export default withMermaid(defineConfig({
   lang: 'zh-CN',
   title: 'AI 工具知识库',
   description: '从工具到原理，系统梳理 AI 编程的核心知识体系',
-  base: '/claude-docs/',
+  base: '/ai-coding-wiki/',
   lastUpdated: true,
 
   appearance: false,
@@ -16,6 +16,13 @@ export default withMermaid(defineConfig({
 
     nav: [
       { text: '首页', link: '/' },
+      {
+        text: 'Wyze Skills',
+        items: [
+          { text: '架构总览', link: '/wyze-plugin-skills/project-structure.html' },
+          { text: '流程图', link: '/wyze-plugin-skills/orchestration-flowchart.html' },
+        ]
+      },
       {
         text: 'AI 工具',
         activeMatch: '^/tools/',

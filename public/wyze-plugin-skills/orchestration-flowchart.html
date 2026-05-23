@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wyze Orchestrations 流程图</title>
+<style>
+  :root {
+    --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --color-text-primary: #1a1a1a;
+    --color-text-secondary: #6b6b6b;
+    --color-text-tertiary: #9e9e9e;
+    --color-text-brand: #22c55e;
+    --color-text-disabled: #c4c4c4;
+    --color-text-negative: #ef4444;
+    --color-text-inverse-static: #ffffff;
+    --color-bg-primary: #ffffff;
+    --color-bg-secondary: #f5f5f5;
+    --color-bg-tertiary: #ebebeb;
+    --color-bg-brand: #22c55e;
+    --color-bg-neutral: #e5e5e5;
+    --color-bg-selected: #e8fbe8;
+    --color-bg-disabled: #f0f0f0;
+    --color-bg-positive: #dcfce7;
+    --color-bg-negative: #fee2e2;
+    --color-border-primary: #e5e5e5;
+    --color-border-secondary: #d4d4d4;
+    --color-border-selected: #22c55e;
+    --color-border-negative: #ef4444;
+    --color-icon-selected: #22c55e;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
+    --shadow-md: 0 4px 8px rgba(0,0,0,.1);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,.15);
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-full: 9999px;
+    --purple-brand: #7c3aed;
+    --purple-bg: #f5f3ff;
+    --purple-border: #c4b5fd;
+    --orange-brand: #d97706;
+    --orange-bg: #fffbeb;
+    --orange-border: #fcd34d;
+    --blue-brand: #2563eb;
+    --blue-bg: #eff6ff;
+    --blue-border: #bfdbfe;
+    --red-bg: #fef2f2;
+    --red-border: #fecaca;
+    --arrow: #c4c4c4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-family);
+    background: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .header {
+    background: var(--color-bg-primary);
+    text-align: center;
+    padding: 40px var(--space-5) var(--space-8);
+    border-bottom: 1px solid var(--color-border-primary);
+  }
+  .header .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-2);
+  }
+  .header .logo-icon {
+    width: 36px; height: 36px;
+    background: var(--color-bg-brand);
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--color-text-inverse-static);
+    font-weight: 700; font-size: 16px;
+  }
+  .header h1 { font-size: 28px; line-height: 36px; font-weight: 600; }
+  .header p { color: var(--color-text-secondary); margin-top: var(--space-1); font-size: 14px; line-height: 20px; font-weight: 500; }
+
+  .legend {
+    display: flex; justify-content: center; gap: var(--space-5); flex-wrap: wrap;
+    padding: var(--space-3) var(--space-5);
+    margin: var(--space-6) auto; max-width: 960px;
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+  }
+  .legend-item { display: flex; align-items: center; gap: var(--space-2); font-size: 12px; line-height: 16px; font-weight: 500; color: var(--color-text-secondary); }
+  .legend-dot { width: 16px; height: 16px; border-radius: var(--space-1); flex-shrink: 0; }
+
+  .tab-bar { display: flex; justify-content: center; gap: var(--space-2); margin: 0 auto var(--space-8); padding: 0 var(--space-5); flex-wrap: wrap; }
+  .tab-btn {
+    padding: var(--space-2) var(--space-6);
+    border: 1.5px solid var(--color-border-primary);
+    border-radius: var(--radius-full);
+    background: var(--color-bg-primary);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: 0.01em;
+    transition: all .2s;
+    box-shadow: var(--shadow-sm);
+  }
+  .tab-btn:hover { border-color: var(--color-border-selected); color: var(--color-text-brand); }
+  .tab-btn.active { background: var(--color-bg-brand); border-color: var(--color-bg-brand); color: var(--color-text-inverse-static); box-shadow: 0 4px 12px rgba(34,197,94,.25); }
+
+  .flow-section { display: none; max-width: 1200px; margin: 0 auto; padding: 0 var(--space-5) 80px; }
+  .flow-section.active { display: block; }
+
+  .flow-title { text-align: center; margin-bottom: var(--space-2); }
+  .flow-title h2 { font-size: 20px; line-height: 28px; font-weight: 600; }
+  .badge { display: inline-block; padding: 2px var(--space-3); border-radius: var(--radius-full); font-size: 12px; font-weight: 700; margin-left: var(--space-2); vertical-align: middle; letter-spacing: 0.02em; }
+  .badge-public { background: var(--color-bg-brand); color: var(--color-text-inverse-static); }
+  .badge-private { background: var(--purple-brand); color: var(--color-text-inverse-static); }
+  .flow-desc { text-align: center; color: var(--color-text-secondary); font-size: 14px; line-height: 20px; font-weight: 500; margin-bottom: var(--space-8); }
+
+  .flow-container { position: relative; }
+  .flow-row { display: flex; justify-content: center; gap: var(--space-3); margin-bottom: var(--space-3); flex-wrap: wrap; }
+
+  .flow-node {
+    position: relative;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    border: 1.5px solid var(--color-border-primary);
+    background: var(--color-bg-primary);
+    min-width: 180px; max-width: 320px;
+    text-align: center;
+    transition: all .2s;
+    cursor: default;
+    box-shadow: var(--shadow-sm);
+  }
+  .flow-node:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--color-border-selected); }
+  .flow-node .node-id { font-size: 12px; line-height: 16px; font-weight: 700; color: var(--color-text-brand); text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: var(--space-1); }
+  .flow-node .node-title { font-size: 14px; line-height: 16px; font-weight: 700; margin-bottom: var(--space-1); }
+  .flow-node .node-desc { font-size: 12px; line-height: 16px; font-weight: 500; color: var(--color-text-secondary); }
+
+  /* 入口：浅绿底 + 深绿边 */
+  .node-entry { background: #dcfce7; border: 2.5px solid #15803d; border-style: solid; }
+  .node-entry .node-id { color: #14532d; }
+  .node-entry .node-title { color: #15803d; }
+  .node-entry .node-desc { color: #166534; }
+  .node-entry .node-steps li { color: #166534; }
+  .node-entry .node-steps li::before { color: #15803d; }
+  .node-entry .note-box { background: #f0fdf4; border-color: #86efac; color: #166534; }
+  .node-entry:hover { border-color: #14532d; }
+
+  /* 流程节点（默认）：白底 + 灰色虚线边 */
+  .flow-node { border-style: dashed; border-color: #a3a3a3; }
+
+  /* 决策：浅琥珀底 + 深琥珀边 */
+  .node-decision { background: #fef3c7; border: 2.5px solid #92400e; border-style: solid; }
+  .node-decision .node-id { color: #78350f; }
+  .node-decision .node-title { color: #92400e; }
+  .node-decision .node-desc { color: #78350f; }
+  .node-decision .node-steps li { color: #78350f; }
+  .node-decision .node-steps li::before { color: #92400e; }
+
+  /* Role (Agent) 委托：浅紫底 + 深紫边 */
+  .node-role { background: #ede9fe; border: 2.5px solid #5b21b6; border-style: solid; }
+  .node-role .node-id { color: #4c1d95; }
+  .node-role .node-title { color: #5b21b6; }
+  .node-role .node-desc { color: #6d28d9; }
+  .node-role .node-steps li { color: #6d28d9; }
+  .node-role .node-steps li::before { color: #7c3aed; }
+  .node-role:hover { border-color: #4c1d95; }
+
+  /* Skill 委托：浅青底 + 深青边 */
+  .node-skill { background: #cffafe; border: 2.5px solid #0e7490; border-style: solid; }
+  .node-skill .node-id { color: #164e63; }
+  .node-skill .node-title { color: #0e7490; }
+  .node-skill .node-desc { color: #155e75; }
+  .node-skill .node-steps li { color: #155e75; }
+  .node-skill .node-steps li::before { color: #0891b2; }
+  .node-skill:hover { border-color: #164e63; }
+
+  /* 完成/输出：浅翠底 + 深翠边 */
+  .node-end { background: #d1fae5; border: 2.5px solid #065f46; border-style: solid; }
+  .node-end .node-id { color: #064e3b; }
+  .node-end .node-title { color: #065f46; }
+  .node-end .node-desc { color: #047857; }
+  .node-end .node-steps li { color: #047857; }
+  .node-end .node-steps li::before { color: #059669; }
+  .node-end:hover { border-color: #064e3b; }
+
+  /* 并行：浅蓝底 + 深蓝边 */
+  .node-parallel { background: #dbeafe; border: 2.5px solid #1e40af; border-style: solid; }
+  .node-parallel .node-id { color: #1e3a5f; }
+  .node-parallel .node-title { color: #1e40af; }
+  .node-parallel .node-desc { color: #1d4ed8; }
+  .node-parallel .node-steps li { color: #1d4ed8; }
+  .node-parallel .node-steps li::before { color: #2563eb; }
+  .node-parallel:hover { border-color: #1e3a8a; }
+
+  /* 知识库：浅琥珀底 + 深琥珀边（区别于决策的黄色） */
+  .node-knowledge { background: #fef9c3; border: 2.5px solid #a16207; border-style: solid; }
+  .node-knowledge .node-id { color: #854d0e; }
+  .node-knowledge .node-title { color: #a16207; }
+  .node-knowledge .node-desc { color: #854d0e; }
+  .node-knowledge .node-steps li { color: #854d0e; }
+  .node-knowledge .node-steps li::before { color: #ca8a04; }
+  .node-knowledge:hover { border-color: #713f12; }
+  .node-knowledge .kb-tag { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; background: #fef3c7; border: 1px solid #fbbf24; color: #92400e; margin: 1px 2px; line-height: 16px; }
+  .node-knowledge .kb-dir { font-weight: 700; color: #92400e; }
+  .node-knowledge .kb-file { color: #a16207; }
+  .kb-ref { font-size: 11px; color: #a16207; margin-top: 4px; padding: 4px 8px; background: #fefce8; border: 1px solid #fde68a; border-radius: 6px; text-align: left; }
+  .kb-ref .kb-label { font-weight: 700; color: #854d0e; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  /* 错误/重试：浅红底 + 深红边 */
+  .node-error { background: #fee2e2; border: 2.5px solid #991b1b; border-style: solid; }
+  .node-error .node-id { color: #7f1d1d; }
+  .node-error .node-title { color: #991b1b; }
+  .node-error .node-desc { color: #b91c1c; }
+  .node-error .node-steps li { color: #b91c1c; }
+  .node-error .node-steps li::before { color: #dc2626; }
+  .node-error:hover { border-color: #7f1d1d; }
+
+  .branch-group {
+    display: flex; gap: var(--space-3); justify-content: center; flex-wrap: wrap;
+    padding: var(--space-6) var(--space-4) var(--space-4);
+    border: 1.5px dashed var(--color-border-secondary);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-primary);
+    margin: var(--space-2) 0;
+    position: relative;
+    box-shadow: var(--shadow-sm);
+  }
+  .branch-group::before {
+    content: attr(data-label);
+    position: absolute; top: -10px; left: var(--space-5);
+    background: var(--color-bg-secondary);
+    padding: 0 var(--space-3);
+    font-size: 12px; font-weight: 700;
+    color: var(--color-text-brand);
+    letter-spacing: 0.02em; text-transform: uppercase;
+  }
+  .branch-col { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); }
+  .branch-label {
+    font-size: 12px; line-height: 16px; font-weight: 700;
+    color: var(--orange-brand);
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--orange-border);
+    border-radius: var(--radius-full);
+    background: var(--orange-bg);
+  }
+
+  .phase-divider { display: flex; align-items: center; gap: var(--space-3); margin: var(--space-6) 0 var(--space-4); }
+  .phase-divider::before, .phase-divider::after { content: ''; flex: 1; height: 1px; background: var(--color-border-primary); }
+  .phase-divider .phase-label { font-size: 12px; font-weight: 700; color: var(--color-text-brand); letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap; }
+
+  .stage-marker {
+    display: inline-flex; align-items: center;
+    padding: var(--space-2) var(--space-5);
+    border-radius: var(--radius-full);
+    background: var(--color-bg-positive); border: 1px solid #86efac;
+    font-size: 12px; line-height: 16px; font-weight: 700; color: #15803d;
+    margin: var(--space-4) auto var(--space-3);
+    text-align: center; letter-spacing: 0.02em;
+  }
+
+  .connector { display: flex; justify-content: center; align-items: center; padding: 2px 0; }
+
+  .node-steps { text-align: left; margin-top: var(--space-1); font-size: 12px; line-height: 18px; font-weight: 500; color: var(--color-text-secondary); }
+  .node-steps li { list-style: none; }
+  .node-steps li::before { content: '› '; color: var(--color-text-brand); font-weight: 700; }
+
+  .merge-text { font-size: 12px; color: var(--color-text-tertiary); text-align: center; padding: var(--space-1); }
+  .merge-text-green { font-size: 12px; color: #15803d; text-align: center; font-weight: 500; }
+
+  .note-box {
+    font-size: 11px; line-height: 16px;
+    color: var(--color-text-secondary);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-sm);
+    padding: var(--space-2) var(--space-3);
+    margin: var(--space-1) 0;
+    text-align: left;
+    max-width: 300px;
+  }
+  .note-box.note-warn {
+    background: var(--orange-bg);
+    border-color: var(--orange-border);
+    color: var(--orange-brand);
+  }
+  .note-box.note-error {
+    background: var(--red-bg);
+    border-color: var(--red-border);
+    color: var(--color-text-negative);
+  }
+
+  .loop-indicator {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 700; color: var(--blue-brand);
+    padding: 2px 8px;
+    border: 1px solid var(--blue-border);
+    border-radius: var(--radius-full);
+    background: var(--blue-bg);
+  }
+
+  @media (max-width: 768px) {
+    .flow-node { min-width: 140px; max-width: 260px; }
+    .branch-group { flex-direction: column; align-items: center; }
+    .legend { flex-direction: column; align-items: flex-start; padding: var(--space-4) var(--space-6); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">W</div>
+    <h1>Orchestrations Flow</h1>
+  </div>
+  <p>三个 Orchestration 的详细流程图 — 节点、分支、条件路由、Role (Agent) 委托、错误处理一览</p>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#dcfce7;border:2.5px solid #15803d"></div>入口 / 启动</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#fff;border:1.5px dashed #a3a3a3"></div>处理节点</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#fef3c7;border:2.5px solid #92400e"></div>决策 / 确认</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ede9fe;border:2.5px solid #5b21b6"></div>Role (Agent) 委托</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#cffafe;border:2.5px solid #0e7490"></div>Skill 委托</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#dbeafe;border:2.5px solid #1e40af"></div>并行任务</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#fef9c3;border:2.5px solid #a16207"></div>知识库</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#fee2e2;border:2.5px solid #991b1b"></div>错误 / 重试</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#d1fae5;border:2.5px solid #065f46"></div>完成 / 输出</div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('smart-lock')">wyze-smart-lock</button>
+  <button class="tab-btn" onclick="switchTab('kb-generator')">knowledge-base-generator</button>
+  <button class="tab-btn" onclick="switchTab('plugin-creation')">wyze-plugin-creation</button>
+</div>
+
+<!-- ═══════════ 1. WYZE-SMART-LOCK ═══════════ -->
+<div class="flow-section active" id="sec-smart-lock">
+  <div class="flow-title">
+    <h2>wyze-smart-lock <span class="badge badge-private">Private</span></h2>
+  </div>
+  <div class="flow-desc">多款智能门锁 iOS 开发 Orchestration — 任务识别 → 知识库分层 → 代码生成 → 审查 → PR</div>
+
+  <div class="flow-container">
+    <!-- 启动 -->
+    <div class="flow-row">
+      <div class="flow-node node-entry">
+        <div class="node-id">启动</div>
+        <div class="node-title">触发 &amp; 加载 project-config</div>
+        <div class="node-desc">关键词命中（lock / palmer / lever / bolt / palm）<br>必读 context/project-config.md<br>加载 context/project-info.md + 执行启动命令</div>
+        <div class="note-box">强制规则：仅读 project-config.md，其余 6 个文件按节点按需加载，禁止预加载全部</div>
+      </div>
+      <div class="flow-node node-skill">
+        <div class="node-id">Git 委托</div>
+        <div class="node-title">wyze-git</div>
+        <div class="node-desc">全部 Git 操作委托给公有 wyze-git<br>传入 GIT_PROJECT_PATH</div>
+      </div>
+    </div>
+    <div class="connector"><svg width="2" height="20"><line x1="1" y1="0" x2="1" y2="20" stroke="#c4c4c4" stroke-width="1.5"/></svg></div>
+
+    <!-- 知识库 context 文件全景 -->
+    <div class="flow-row">
+      <div class="flow-node node-knowledge" style="max-width:560px;min-width:480px">
+        <div class="node-id">知识库 — 7 个 Context 文件（按节点按需加载）</div>
+        <div class="node-title">context/ 知识体系</div>
+        <div style="display:flex;gap:12px;margin-top:8px;text-align:left;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px">
+            <div class="kb-dir" style="margin-bottom:4px">📁 context/</div>
+            <div style="display:flex;flex-wrap:wrap;gap:2px">
+              <span class="kb-tag" style="background:#dcfce7;border-color:#86efac;color:#15803d">project-config.md ★</span>
+              <span class="kb-tag">project-info.md</span>
+              <span class="kb-tag">coding-standards.md</span>
+              <span class="kb-tag">products.md</span>
+              <span class="kb-tag">checklist-template.md</span>
+              <span class="kb-tag">knowledge-writing-standards.md</span>
+              <span class="kb-tag">refactor-writing-standards.md</span>
+            </div>
+          </div>
+          <div style="flex:0 0 180px;min-width:160px;font-size:11px;color:#854d0e;line-height:1.5">
+            <div class="kb-dir" style="margin-bottom:4px">📁 knowledge/{锁型}/</div>
+            <div style="display:flex;flex-wrap:wrap;gap:2px">
+              <span class="kb-tag">lever-lock/</span>
+              <span class="kb-tag">lock-bolt/</span>
+              <span class="kb-tag">palm-lock/</span>
+            </div>
+            <div style="margin-top:4px;font-size:10px">每个锁型含 figma/ + 模块知识文件</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="connector"><svg width="2" height="20"><line x1="1" y1="0" x2="1" y2="20" stroke="#c4c4c4" stroke-width="1.5"/></svg></div>
+
+    <!-- 节点 A -->
+    <div class="flow-row">
+      <div class="flow-node">
+        <div class="node-id">节点 A</div>
+        <div class="node-title">识别任务来源 + 锁型 + 模块</div>
+        <div class="node-steps"><ul>
+          <li>来源：知识库更新 / 优化重构 / Figma 查阅 / Figma 导出 / 自定义</li>
+          <li>锁型：Lever Lock / Lock Bolt v2 / Palm Lock / ask_user</li>
+          <li>模块：setup / home / settings / password / iot / other / ask_user</li>
+        </ul></div>
+      </div>
+    </div>
+    <div class="connector"><svg width="2" height="20"><line x1="1" y1="0" x2="1" y2="20" stroke="#c4c4c4" stroke-width="1.5"/></svg></div>
+
+    <!-- 按来源路由 -->
+    <div class="branch-group" data-label="按来源类型路由（节点 A 输出）">
+      <!-- FIG -->
+      <div class="branch-col">
+        <div class="branch-label">Figma 查阅/导出</div>
+        <div class="flow-node" style="min-width:170px">
+          <div class="node-id">节点 FIG</div>
+          <div class="node-title">Figma 设计稿</div>
+          <div class="node-steps"><ul>
+            <li>查阅：products.md → API 精确拉取</li>
+            <li>导出：委托 wyze-figma-kb</li>
+          </ul></div>
+          <div class="note-box note-warn">Figma 守则：优先读本地 KB → 缺失才调 API → 必须带 nodeId，禁止无 nodeId 调用</div>
+        </div>
+        <div class="flow-node node-skill" style="min-width:170px">
+          <div class="node-id">Skill 委托</div>
+          <div class="node-title">wyze-figma-kb</div>
+          <div class="node-steps"><ul>
+            <li>Lever → Knowledge/palmer-lock/lever-lock/figma/</li>
+            <li>Bolt → Knowledge/palmer-lock/lock-bolt/figma/</li>
+            <li>Palm → Knowledge/palmer-lock/palm-lock/figma/</li>
+          </ul></div>
+        </div>
+      </div>
+      <!-- KU -->
+      <div class="branch-col">
+        <div class="branch-label">知识库更新</div>
+        <div class="flow-node" style="min-width:170px">
+          <div class="node-id">节点 KU</div>
+          <div class="node-title">代码反向更新知识库</div>
+          <div class="node-desc">变更类型映射（门锁专属）<br>注入 kb-updater context</div>
+          <div class="node-steps"><ul>
+            <li>CHANGED_FILES + KB_FILES</li>
+            <li>KB_STANDARDS + REFACTOR_STANDARDS</li>
+            <li>CHANGE_MAPPING + EXTRA_FOCUS</li>
+          </ul></div>
+        </div>
+        <div class="flow-node node-role" style="min-width:170px">
+          <div class="node-id">Role</div>
+          <div class="node-title">kb-updater</div>
+          <div class="node-desc">执行知识库文件更新</div>
+        </div>
+      </div>
+      <!-- RF -->
+      <div class="branch-col">
+        <div class="branch-label">优化 / 重构</div>
+        <div class="flow-node" style="min-width:170px">
+          <div class="node-id">节点 RF</div>
+          <div class="node-title">优化 / 重构分析</div>
+          <div class="node-steps"><ul>
+            <li>加载 project-info + coding-standards</li>
+            <li>加载 knowledge/refactor-writing-standards</li>
+            <li>分析：职责/分支/重复/复用</li>
+            <li>默认先输出分析，不改代码</li>
+          </ul></div>
+        </div>
+        <svg width="2" height="12"><line x1="1" y1="0" x2="1" y2="12" stroke="#c4c4c4" stroke-width="1.5"/></svg>
+        <div class="flow-node node-decision" style="min-width:170px">
+          <div class="node-id">用户选择</div>
+          <div class="node-title">沉淀到知识库？</div>
+          <div class="node-desc">Y → 按 refactor-writing-standards 写入 KB<br>N → 仅保留分析结果</div>
+        </div>
+      </div>
+      <!-- B（自定义任务） -->
+      <div class="branch-col">
+        <div class="branch-label">自定义任务（开发）</div>
+        <div class="flow-node" style="min-width:180px">
+          <div class="node-id">节点 B</div>
+          <div class="node-title">分层加载知识库</div>
+          <div class="node-steps"><ul>
+            <li>B1a: 核心层（任何任务必读）</li>
+            <li>B1b: 代码层（需生成代码时）</li>
+            <li>B1c: Setup 专属层（仅 setup-mounting）</li>
+            <li>Refactor: 重构层（优化/排查时，可选）</li>
+            <li>B2: 锁型专属文件（三选一）</li>
+            <li>B3: Step 文件（仅 Lever setup，先 RAG 搜索）</li>
+            <li>B4: Jira 查询 + Confluence 查询</li>
+          </ul></div>
+        </div>
+        <svg width="2" height="8"><line x1="1" y1="0" x2="1" y2="8" stroke="#c4c4c4" stroke-width="1.5"/></svg>
+        <div class="flow-node node-skill" style="min-width:180px">
+          <div class="node-id">B4 委托</div>
+          <div class="node-title">wyze-jira + confluence-lookup</div>
+          <div class="node-desc">Jira: atlassian-jira_search/get<br>Confluence: nodes/confluence-lookup.md</div>
+        </div>
+        <svg width="2" height="8"><line x1="1" y1="0" x2="1" y2="8" stroke="#c4c4c4" stroke-width="1.5"/></svg>
+        <div class="flow-node node-decision" style="min-width:180px">
+          <div class="node-id">用户确认</div>
+          <div class="node-title">分析输出 → 开始开发？</div>
+          <div class="node-desc">输出当前判断 / 关键点 / 风险<br>等待「开始做」「实现一下」</div>
+        </div>
+        <svg width="2" height="8"><line x1="1" y1="0" x2="1" y2="8" stroke="#c4c4c4" stroke-width="1.5"/></svg>
+        <div class="flow-node node-decision" style="min-width:180px">
+          <div class="node-id">节点 C — C2</div>
+          <div class="node-title">Subagent 模式？[y/N]</div>
+          <div class="node-desc">N（默认）→ 当前线程直接生成代码<br>Y → dispatch implementer subagent</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-divider"><span class="phase-label">代码生成主线</span></div>
+
+    <!-- 节点 C -->
+    <div class="flow-row">
+      <div class="flow-node">
+        <div class="node-id">节点 C</div>
+        <div class="node-title">代码生成</div>
+        <div class="node-steps"><ul>
+          <li>C1: 加载 project-info + coding-standards</li>
+          <li>C1: RAG 搜索同类已有实现</li>
+          <li>C1: 逐字列出核查清单</li>
+          <li>C2=N: 当前线程直接生成代码</li>
+          <li>C2=Y: dispatch implementer subagent</li>
+        </ul></div>
+      </div>
+      <div class="flow-node node-role">
+        <div class="node-id">Role（C2=Y 时）</div>
+        <div class="node-title">implementer</div>
+        <div class="node-steps"><ul>
+          <li>CODING_STANDARDS + PROJECT_INFO</li>
+          <li>KNOWLEDGE_FILES + TASK + TARGET_FILES</li>
+          <li>GIT_PROJECT_PATH</li>
+          <li>ERROR_KNOWLEDGE（如有 error-knowledge.md）</li>
+          <li>EXTRA_VARS: {LOCK_TYPE, MODULE}</li>
+        </ul></div>
+      </div>
+    </div>
+    <div class="connector"><svg width="2" height="28"><line x1="1" y1="0" x2="1" y2="22" stroke="#c4c4c4" stroke-width="1.5"/><polygon points="-4,22 1,28 6,22" fill="#c4c4c4"/></svg></div>
+
+    <!-- 节点 D -->
+    <div class="flow-row">
+      <div class="flow-node">
+        <div class="node-id">节点 D（强制）</div>
+        <div class="node-title">代码审查</div>
+        <div class="node-desc">无论是否 subagent，代码完成后必须执行</div>
+      </div>
+      <div class="flow-node node-role">
+        <div class="node-id">Role</div>
+        <div class="node-title">reviewer</div>
+        <div class="node-steps"><ul>
+          <li>MODE = spec</li>
+          <li>KNOWLEDGE_FILES（节点 B 全部）</li>
+          <li>CHECKLIST = checklist-template.md</li>
+          <li>MAX_ROUNDS = 3</li>
+          <li>GIT_PROJECT_PATH</li>
+        </ul></div>
+      </div>
+    </div>
+    <div class="connector"><svg width="2" height="28"><line x1="1" y1="0" x2="1" y2="22" stroke="#c4c4c4" stroke-width="1.5"/><polygon points="-4,22 1,28 6,22" fill="#c4c4c4"/></svg></div>
+
+    <!-- 节点 D3 -->
+    <div class="flow-row">
+      <div class="flow-node node-decision">
+        <div class="node-id">节点 D3</div>
+        <div class="node-title">有新增文件？</div>
+        <div class="node-desc">Y → 执行 Pod Install（nodes/pod-install.md）<br>N → 跳过，直接进入 E</div>
+      </div>
+    </div>
+    <div class="connector"><svg width="2" height="28"><line x1="1" y1="0" x2="1" y2="22" stroke="#c4c4c4" stroke-width="1.5"/><polygon points="-4,22 1,28 6,22" fill="#c4c4c4"/></svg></div>
+
+    <!-- 节点 E -->
+    <div class="flow-row">
+      <div class="flow-node node-decision">
+        <div class="node-id">节点 E</div>
+        <div class="node-title">代码已通过审查，提交 PR？</div>
+        <div class="node-desc">Y → 委托 finishing-a-development-branch</div>
+      </div>
+      <div class="flow-node node-skill">
+        <div class="node-id">Skill 委托</div>
+        <div class="node-title">finishing-a-development-branch</div>
+        <div class="node-desc">PR 收尾全流程</div>
+      </div>
+    </div>
+    <div class="connector"><svg width="2" height="28"><line x1="1" y1="0" x2="1" y2="22" stroke="#c4c4c4" stroke-width="1.5"/><polygon points="-4,22 1,28 6,22" fill="#c4c4c4"/></svg></div>
+
+    <!-- 输出 -->
+    <div class="flow-row">
+      <div class="flow-node node-end">
+        <div class="node-id">输出</div>
+        <div class="node-title">任务结束报告</div>
+        <div class="node-steps"><ul>
+          <li>任务 / 锁型 / 模块</li>
+          <li>知识库加载：N 个文件</li>
+          <li>implementer: rounds / files</li>
+          <li>reviewer: mode=spec, rounds/MAX, 修正 N 处</li>
+          <li>kb-updater: 触发/未触发</li>
+          <li>高消耗环节 + 原因分析</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ 2. KNOWLEDGE-BASE-GENERATOR ═══════════ -->
+<div class="flow-section" id="sec-kb-generator">
+  <div class="flow-title">
+    <h2>knowledge-base-generator <span class="badge badge-public">Public</span></h2>
+  </div>
+  <div class="flow-desc">为 iOS / Android 项目生成与维护知识库 — 四个入口、九个节点、三点基础信息永久核心</div>
+
+  <div class="flow-container">
+    <!-- 启动前检查 -->
+    <div class="flow-row">
+      <div class="flow-node node-entry">
+        <div class="node-id">启动前检查（必做）</div>
+        <div class="node-title">4 步前置验证</div>
+        <div class="node-steps"><ul>
+          <li>1. 确认 KB 存放路径（AI 建议 + 用户确认）</li>
+          <li>2. 读 .kb-state.yaml（续做？status != done 时提示）</li>
+          <li>3. 三点完整性扫描（缺失 → kb-fallback.md 路径）</li>
+          <li>4. 多人协作检查（updated_at vs git commit）</li>
+        </ul></div>
+      </div>
+      <div class="flow-node" style="max-width:260px">
+        <div class="node-id">.kb-state.yaml</div>
+        <div class="node-title">流程状态持久化文件</div>
+        <div class="note-box">YAML 是一种人类可读的配置格式。此文件保存在项目根目录，记录当前流程进度，使 AI 可以跨会话断点续做 — 关闭对话后重新进入，AI 读取此文件自动恢复到上次中断的位置。</div>
+      </div>
+    </div>
+    <div class="connector"><svg width="2" height="28"><line x1="1" y1="0" x2="1" y2="22" stroke="#c4c4c4" stroke-width="1.5"/><polygon points="-4,22 1,28 6,22" fill="#c4c4c4"/></svg></div>
+
+    <!-- 四个入口 -->
+    <div class="branch-group" data-label="四个入口（按触发词路由）— 均须先通过启动前检查">
+      <!-- 入口 1: 项目分析 -->
+      <div class="branch-col">
+        <div class="branch-label">项目分析</div>
+        <div class="flow-node node-entry" style="min-width:190px">
+          <div class="node-id">触发词</div>
+          <div class="node-title">分析 {路径} 建立知识库</div>
+        </div>
+        <svg width="2" height="12"><line x1="1" y1="0" x2="1" y2="12" stroke="#c4c4c4" stroke-width="1.5"/></svg>
+        <div class="flow-node" style="min-width:190px">
+          <div class="node-id">kb-project-scan</div>
+          <div class="node-title">扫描项目</div>
+          <div class="node-desc">检测平台 / 语言 / 框架<br>输出扫描摘要</div>
+        </div>
+        <svg width="2" height="12"><line x1="1" y1="0" x2="1" y2="12" stroke="#c4c4c4" stroke-width="1.5"/></svg>
+        <div class="flow-node node-decision" style="min-width:190px">
+          <div class="node-id">kb-project-confirm</div>
+          <div class="node-title">开发者确认扫描结果</div>
+          <div class="node-desc">可修正平台/语言/范围</div>
+        </div>
+        <svg width="2" height="12"><line x1="1" y1="0" x2="1" y2="12" stroke="#22c55e" stroke-width="2"/></svg>
+        <div class="flow-node" style="min-width:190px;border-color:#22c55e">
+          <div class="node-id">kb-init-framework</div>
+          <div class="node-title">初始化 KB 框架（4 阶段）</div>
+          <div class="node-steps"><ul>
+            <li>Phase 1: identity.md → refine-loop</li>
+            <li>Phase 2: project-structure.md → refine-loop</li>
+            <li>Phase 3: sdk-dependencies.md → refine-loop</li>
+            <li>Phase 4: 可选文档（01~05 目录）</li>
+          </ul></div>
+          <div class="note-box">每份文件生成后立即进入 refine-loop，确认后才进入下一 Phase</div>
+        </div>
+        <svg width="2" height="6"><line x1="1" y1="0" x2="1" y2="6" stroke="#22c55e" stroke-width="2"/></svg>
+        <div class="loop-indicator">↻ 每份文档循环</div>
+        <svg width="2" height="6"><line x1="1" y1="0" x2="1" y2="6" stroke="#22c55e" stroke-width="2"/></svg>
+        <div class="flow-node node-end" style="min-width:190px">
+          <div class="node-id">kb-refine-loop</div>
+          <div class="node-title">打磨循环</div>
+          <div class="node-desc">AI 生成 → 开发者反馈 → 调整 → 确认<br>每份文档都进入此循环<br>init-framework Phase 1-3 各触发一次</div>
+        </div>
+      </div>
+
+      <!-- 入口 2: PR 声明 -->
+      <div class="branch-col">
+        <div class="branch-label">PR 声明</div>
+        <div class="flow-node node-entry" style="min-width:170px">
+          <div class="node-id">触发词</div>
+          <div class="node-title">从 PR 建立知识库</div>
+        </div>
+        <svg width="2" height="12"><line x1="1" y1="0" x2="1" y2="12" stroke="#c4c4c4" stroke-width="1.5"/></svg>
+        <div class="flow-node" style="min-width:170px">
+          <div class="node-id">kb-pr-declare</div>
+          <div class="node-title">显式声明平台/语言</div>
+          <div class="node-desc">开发者手动指定<br>不依赖扫描</div>
+        </div>
+        <svg width="2" height="12"><line x1="1" y1="0" x2="1" y2="12" stroke="#c4c4c4" stroke-width="1.5"/></svg>
+        <div class="merge-text">↓ 合流</div>
+        <div class="merge-text-green">kb-init-framework（同左 4 阶段）<br>→ kb-refine-loop</div>
+      </div>
+
+      <!-- 入口 3: 更新维护 -->
+      <div class="branch-col">
+        <div class="branch-label">更新维护</div>
+        <div class="flow-node node-entry" style="min-width:190px">
+          <div class="node-id">触发词</div>
+          <div class="node-title">更新知识库</div>
+        </div>
+        <svg width="2" height="12"><line x1="1" y1="0" x2="1" y2="12" stroke="#c4c4c4" stroke-width="1.5"/></svg>
+        <div class="flow-node" style="min-width:190px">
+          <div class="node-id">kb-update-analyze</div>
+          <div class="node-title">分析代码变化</div>
+          <div class="node-desc">检查三点同步需求<br>识别需更新的文档</div>
+        </div>
+        <svg width="2" height="12"><line x1="1" y1="0" x2="1" y2="12" stroke="#c4c4c4" stroke-width="1.5"/></svg>
+        <div class="flow-node" style="min-width:190px">
+          <div class="node-id">kb-optimize-suggest</div>
+          <div class="node-title">提出优化建议</div>
+          <div class="node-desc">删除 / 合并 / 拆分 / 新增<br>优化先于增删</div>
+        </div>
+        <svg width="2" height="12"><line x1="1" y1="0" x2="1" y2="12" stroke="#c4c4c4" stroke-width="1.5"/></svg>
+        <div class="flow-node" style="min-width:190px">
+          <div class="node-id">kb-execute-update</div>
+          <div class="node-title">执行更新</div>
+          <div class="node-desc">执行优化 + 更新内容</div>
+        </div>
+        <svg width="2" height="8"><line x1="1" y1="0" x2="1" y2="8" stroke="#c4c4c4" stroke-width="1.5"/></svg>
+        <div class="flow-node node-decision" style="min-width:190px">
+          <div class="node-id">有新增文档？</div>
+          <div class="node-title">新文档 → refine-loop</div>
+          <div class="node-desc">Y → 新文档进入 kb-refine-loop<br>N → 仅更新已有文档，完成</div>
+        </div>
+      </div>
+
+      <!-- 入口 4: 轻量增量 -->
+      <div class="branch-col">
+        <div class="branch-label">轻量增量</div>
+        <div class="flow-node node-entry" style="min-width:170px">
+          <div class="node-id">触发词</div>
+          <div class="node-title">补一份 {文档名}</div>
+        </div>
+        <svg width="2" height="12"><line x1="1" y1="0" x2="1" y2="12" stroke="#c4c4c4" stroke-width="1.5"/></svg>
+        <div class="flow-node" style="min-width:170px">
+          <div class="node-id">kb-incremental-add</div>
+          <div class="node-title">单文档新增</div>
+          <div class="node-desc">不走完整 update<br>避免小事大办</div>
+        </div>
+        <svg width="2" height="8"><line x1="1" y1="0" x2="1" y2="8" stroke="#c4c4c4" stroke-width="1.5"/></svg>
+        <div class="flow-node node-decision" style="min-width:170px">
+          <div class="node-id">模块一致性检查</div>
+          <div class="node-title">project-structure 有此模块？</div>
+          <div class="node-desc">无 → 提示：继续 or 切完整更新</div>
+        </div>
+        <svg width="2" height="8"><line x1="1" y1="0" x2="1" y2="8" stroke="#c4c4c4" stroke-width="1.5"/></svg>
+        <div class="merge-text-green">→ kb-refine-loop</div>
+      </div>
+    </div>
+
+    <div class="phase-divider"><span class="phase-label">所有路径最终产出</span></div>
+
+    <div class="flow-row">
+      <div class="flow-node node-knowledge" style="max-width:520px;min-width:440px">
+        <div class="node-id">产出 — 生成的知识库结构</div>
+        <div class="node-title">知识库目录（被 Plugin Creation 等下游消费）</div>
+        <div style="display:flex;gap:12px;margin-top:8px;text-align:left;flex-wrap:wrap">
+          <div style="flex:1;min-width:220px">
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <span class="kb-tag" style="background:#dcfce7;border-color:#86efac;color:#15803d">00-PROJECT-FOUNDATION/ ★ 必须</span>
+              <span style="font-size:10px;color:#854d0e;padding-left:8px">identity.md + project-structure.md + sdk-dependencies.md</span>
+              <span class="kb-tag">01-ARCHITECTURE/ （可选）</span>
+              <span class="kb-tag">02-MODULES/ （可选）</span>
+              <span class="kb-tag">03-CONVENTIONS/ （可选）</span>
+              <span class="kb-tag">04-INTEGRATION/ （可选）</span>
+              <span class="kb-tag">05-MAINTENANCE/ （可选）</span>
+              <span class="kb-tag" style="background:#dcfce7;border-color:#86efac;color:#15803d">CHANGELOG.md ★ 必须</span>
+            </div>
+          </div>
+          <div style="flex:0 0 140px;display:flex;flex-direction:column;gap:4px;font-size:11px;color:#854d0e">
+            <div class="kb-dir">下游消费者</div>
+            <span class="kb-tag" style="background:#ede9fe;border-color:#c4b5fd;color:#6d28d9">wyze-plugin-creation</span>
+            <span class="kb-tag" style="background:#cffafe;border-color:#67e8f9;color:#0e7490">wyze-smart-lock</span>
+            <span class="kb-tag" style="background:#cffafe;border-color:#67e8f9;color:#0e7490">其他 Orchestration</span>
+          </div>
+        </div>
+      </div>
+      <div class="flow-node">
+        <div class="node-id">状态</div>
+        <div class="node-title">.kb-state.yaml</div>
+        <div class="node-desc">kb_path / status / current_entry<br>last_node / last_doc / last_round<br>pending_docs / updated_at</div>
+      </div>
+    </div>
+
+    <div class="flow-row" style="margin-top:var(--space-3)">
+      <div class="flow-node node-error" style="max-width:500px">
+        <div class="node-id">错误与回退</div>
+        <div class="node-title">context/kb-fallback.md</div>
+        <div class="node-desc">扫描失败 / 信息不足 / 三点缺失 / 状态冲突 / 决策僵局 → 各有对应处理路径</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ 3. WYZE-PLUGIN-CREATION ═══════════ -->
+<div class="flow-section" id="sec-plugin-creation">
+  <div class="flow-title">
+    <h2>wyze-plugin-creation <span class="badge badge-public">Public</span></h2>
+  </div>
+  <div class="flow-desc">知识驱动开发 — 知识库是代码生成的唯一依据，每个 Batch 的 implementer 和 reviewer 都从知识库获取规范与模板</div>
+
+  <div class="flow-container">
+    <!-- 启动前检查 -->
+    <div class="flow-row">
+      <div class="flow-node node-entry">
+        <div class="node-id">启动前检查</div>
+        <div class="node-title">3 步前置验证</div>
+        <div class="node-steps"><ul>
+          <li>1. 确认在 ~/wyze-plugin-skills/ 内</li>
+          <li>2. 读 .wpc-state.yaml（断点恢复）</li>
+          <li>3. SKILL_ROOT 路径检测（~/.claude → ~/.copilot）</li>
+        </ul></div>
+      </div>
+      <div class="flow-node" style="max-width:260px">
+        <div class="node-id">.wpc-state.yaml</div>
+        <div class="node-title">流程状态持久化文件</div>
+        <div class="note-box">YAML 是一种人类可读的配置格式。此文件保存在项目根目录，记录 8 个阶段的完整进度，使 AI 可以跨会话断点续做 — 关闭对话后重新进入，AI 读取此文件自动恢复到上次中断的阶段。</div>
+      </div>
+      <div class="flow-node node-decision">
+        <div class="node-id">平台选择</div>
+        <div class="node-title">iOS / Android</div>
+        <div class="node-desc">决定 KNOWLEDGE_BASE<br>PROMPTS / SKILL_TEMPLATE 路径</div>
+      </div>
+    </div>
+    <div class="connector"><svg width="2" height="20"><line x1="1" y1="0" x2="1" y2="20" stroke="#c4c4c4" stroke-width="1.5"/></svg></div>
+
+    <!-- 知识库三级检测 -->
+    <div class="flow-row">
+      <div class="flow-node node-decision" style="max-width:500px">
+        <div class="node-id">知识库三级检测</div>
+        <div class="node-title">三级完整性检查</div>
+        <div class="node-steps"><ul>
+          <li>L1: 目录存在且非空（排除 .gitkeep/README）</li>
+          <li>L2: 必选文件齐全（knowledge/ + adapter/ + ui/ + prompts/ + skill-template/）</li>
+          <li>L3: 抽检内容质量（占位符定义、代码模板）</li>
+        </ul></div>
+      </div>
+    </div>
+    <div class="connector"><svg width="2" height="12"><line x1="1" y1="0" x2="1" y2="12" stroke="#c4c4c4" stroke-width="1.5"/></svg></div>
+
+    <!-- 三路分支 -->
+    <div class="branch-group" data-label="检测结果路由">
+      <div class="branch-col">
+        <div class="branch-label">✅ 完整（三级全通过）</div>
+        <div class="flow-node node-entry" style="min-width:160px">
+          <div class="node-id">就绪</div>
+          <div class="node-title">直接进入阶段一</div>
+          <div class="node-desc">{platform} 知识库已就绪</div>
+        </div>
+      </div>
+      <div class="branch-col">
+        <div class="branch-label">⚠️ 部分缺失（L1 通过 L2/3 未通过）</div>
+        <div class="flow-node node-decision" style="min-width:180px">
+          <div class="node-id">补全？</div>
+          <div class="node-title">N 个缺失项，启动补全？[Y/n]</div>
+          <div class="node-desc">Y → GENERATE-ANDROID.md 补全后继续<br>N → 中断整个流程</div>
+        </div>
+      </div>
+      <div class="branch-col">
+        <div class="branch-label">❌ 空（L1 未通过）</div>
+        <div class="flow-node node-decision" style="min-width:180px">
+          <div class="node-id">生成？</div>
+          <div class="node-title">知识库未创建，交互式生成？[Y/n]</div>
+          <div class="node-desc">Y → 进入 Phase 0 生成<br>N → 中断，提示切换已就绪平台</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage 1 -->
+    <div class="stage-marker">STAGE 1 — 参数收集</div>
+    <div class="flow-row">
+      <div class="flow-node">
+        <div class="node-id">Step 1</div>
+        <div class="node-title">任务来源</div>
+        <div class="node-steps"><ul>
+          <li>Q1: Jira Key？（可选）</li>
+        </ul></div>
+      </div>
+      <div class="flow-node node-decision">
+        <div class="node-id">Q1 路由</div>
+        <div class="node-title">有 Jira Key？</div>
+        <div class="node-desc">有 → 委托 wyze-jira 拉取 ticket，预填参数<br>无 → 手动填写</div>
+      </div>
+      <div class="flow-node node-skill" style="min-width:140px">
+        <div class="node-id">Skill 委托</div>
+        <div class="node-title">wyze-jira</div>
+        <div class="node-desc">拉取 ticket 自动预填</div>
+      </div>
+    </div>
+    <div class="connector"><svg width="2" height="16"><line x1="1" y1="0" x2="1" y2="16" stroke="#c4c4c4" stroke-width="1.5"/></svg></div>
+    <div class="flow-row">
+      <div class="flow-node">
+        <div class="node-id">Step 2</div>
+        <div class="node-title">项目基本信息</div>
+        <div class="node-steps"><ul>
+          <li>Q2: org（默认 wyze）</li>
+          <li>Q3: project_code</li>
+          <li>Q4: 工程存放目录（默认 ~/）</li>
+        </ul></div>
+      </div>
+      <div class="flow-node">
+        <div class="node-id">Step 3</div>
+        <div class="node-title">产品列表</div>
+        <div class="node-desc">Q5: nickname / deviceModel /<br>appid / PID / MID / defaultName</div>
+      </div>
+      <div class="flow-node node-decision">
+        <div class="node-id">Step 4</div>
+        <div class="node-title">宿主集成意向</div>
+        <div class="node-desc">Q6: 集成到 wyze-app-ios？[Y/n]<br>Y（默认）→ 后台并行 host-prep<br>N → 阶段六跳过宿主</div>
+      </div>
+    </div>
+
+    <!-- 并行 host-prep + Stage 2-4 -->
+    <div class="connector"><svg width="2" height="20"><line x1="1" y1="0" x2="1" y2="20" stroke="#c4c4c4" stroke-width="1.5"/></svg></div>
+    <div class="flow-row" style="gap:24px">
+      <div class="flow-node node-parallel" style="flex:1;max-width:480px">
+        <div class="node-id">并行：host-prep（Q6=Y 时，阶段一末尾启动）</div>
+        <div class="node-title">宿主前置准备（后台，不阻塞代码生成）</div>
+        <div class="node-steps"><ul>
+          <li>1. clone/fetch wyze-app-ios</li>
+          <li>2. 切 feature/{project_code}-plugin 分支</li>
+          <li>3. 注释 Podfile 中所有 PluginInstall()</li>
+          <li>4. WZDeviceChannelManager 追加 deviceModel</li>
+        </ul></div>
+        <div class="node-desc" style="margin-top:6px">完成 → host_prep.status=done<br>失败 → status=failed（不阻断代码生成）</div>
+      </div>
+      <div style="display:flex;align-items:center;color:#9e9e9e;font-size:13px;font-weight:600">⇅ 并行</div>
+      <div style="flex:1;max-width:500px;display:flex;flex-direction:column;gap:10px">
+        <div class="stage-marker">STAGE 2 — 命名推导 + 生成计划</div>
+        <div class="flow-node">
+          <div class="node-id">阶段二</div>
+          <div class="node-title">01-naming.md → 推导命名 → 展示计划</div>
+          <div class="node-desc">用户「确认开始？」后进入阶段三</div>
+        </div>
+        <div class="stage-marker">STAGE 3 — Git 建仓 + 落地计划</div>
+        <div class="flow-node">
+          <div class="node-id">阶段三</div>
+          <div class="node-title">gh repo create → clone → develop</div>
+          <div class="node-desc">写入 docs/create-plan.md（断点恢复依据）<br>每 Batch 完成更新 checkbox [x]</div>
+        </div>
+        <div class="stage-marker">STAGE 4 — 代码生成（subagent-driven）</div>
+        <div class="flow-node node-decision" style="max-width:500px">
+          <div class="node-id">Step 0（必选）</div>
+          <div class="node-title">选择核查策略</div>
+          <div class="node-desc">1. fast（默认）— 4 并行 + 1 unified-reviewer<br>2. safe — 4 并行 + 每批 spec-reviewer + cross-batch<br>3. serial — 逐批串行 + 每批 review + cross-batch</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="2" height="20"><line x1="1" y1="0" x2="1" y2="20" stroke="#c4c4c4" stroke-width="1.5"/></svg></div>
+
+    <!-- 知识库结构全景 -->
+    <div class="flow-row">
+      <div class="flow-node node-knowledge" style="max-width:680px;min-width:600px">
+        <div class="node-id">知识驱动核心 — 代码生成的唯一依据</div>
+        <div class="node-title">KNOWLEDGE_BASE &amp; PROMPTS 结构</div>
+        <div style="display:flex;gap:16px;margin-top:8px;text-align:left;flex-wrap:wrap">
+          <div style="flex:1;min-width:240px">
+            <div class="kb-dir" style="margin-bottom:4px">📁 knowledge/wyze-plugin-common-ios/</div>
+            <div style="display:flex;flex-wrap:wrap;gap:2px">
+              <span class="kb-tag">01-naming</span>
+              <span class="kb-tag">02-project-structure</span>
+              <span class="kb-tag">03-podspec</span>
+              <span class="kb-tag">04-plist</span>
+              <span class="kb-tag">05-assets</span>
+            </div>
+            <div class="kb-dir" style="margin:6px 0 4px">📂 adapter/ <span class="kb-file">(12 files)</span></div>
+            <div style="display:flex;flex-wrap:wrap;gap:2px">
+              <span class="kb-tag">01-entry</span>
+              <span class="kb-tag">02-module</span>
+              <span class="kb-tag">03-config</span>
+              <span class="kb-tag">04-router</span>
+              <span class="kb-tag">05-handler</span>
+              <span class="kb-tag">06-service</span>
+              <span class="kb-tag">07~12…</span>
+            </div>
+            <div class="kb-dir" style="margin:6px 0 4px">📂 ui/ <span class="kb-file">(8 files)</span></div>
+            <div style="display:flex;flex-wrap:wrap;gap:2px">
+              <span class="kb-tag">01-base-vc</span>
+              <span class="kb-tag">02-views</span>
+              <span class="kb-tag">03-cells</span>
+              <span class="kb-tag">04-home</span>
+              <span class="kb-tag">05-settings</span>
+              <span class="kb-tag">06-setup</span>
+              <span class="kb-tag">07-reset</span>
+              <span class="kb-tag">08-demo</span>
+            </div>
+            <div class="kb-dir" style="margin:6px 0 4px">📂 skill-template/</div>
+          </div>
+          <div style="flex:0 0 200px;min-width:180px">
+            <div class="kb-dir" style="margin-bottom:4px">📁 prompts/ios/</div>
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <span class="kb-tag">batch-a-implementer.md</span>
+              <span class="kb-tag">batch-b-implementer.md</span>
+              <span class="kb-tag">batch-c1-implementer.md</span>
+              <span class="kb-tag">batch-c2-implementer.md</span>
+              <span class="kb-tag" style="background:#fef2f2;border-color:#fca5a5;color:#b91c1c">spec-reviewer.md</span>
+              <span class="kb-tag" style="background:#fef2f2;border-color:#fca5a5;color:#b91c1c">unified-reviewer.md</span>
+              <span class="kb-tag" style="background:#fef2f2;border-color:#fca5a5;color:#b91c1c">cross-batch-reviewer.md</span>
+              <span class="kb-tag" style="background:#ede9fe;border-color:#c4b5fd;color:#6d28d9">host-integrator.md</span>
+              <span class="kb-tag" style="background:#ede9fe;border-color:#c4b5fd;color:#6d28d9">host-prep.md</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="connector"><svg width="2" height="16"><line x1="1" y1="0" x2="1" y2="16" stroke="#c4c4c4" stroke-width="1.5"/></svg></div>
+
+    <!-- 4 Batch + 知识库映射 -->
+    <div class="branch-group" data-label="4 个 Batch — fast/safe 并行，serial 串行 | 每个 Batch 从知识库读取规范">
+      <div class="branch-col">
+        <div class="branch-label">Batch A</div>
+        <div class="flow-node node-role" style="min-width:170px">
+          <div class="node-id">implementer</div>
+          <div class="node-title">Config / Resource</div>
+          <div class="node-desc">podspec + pch + plist<br>+ xcassets + strings</div>
+        </div>
+        <div class="kb-ref">
+          <div class="kb-label">知识库输入</div>
+          01-naming + 03-podspec<br>04-plist + 05-assets
+        </div>
+        <div class="kb-ref" style="border-color:#c4b5fd;background:#f5f3ff">
+          <div class="kb-label" style="color:#5b21b6">Prompt</div>
+          batch-a-implementer.md
+        </div>
+      </div>
+      <div class="branch-col">
+        <div class="branch-label">Batch B</div>
+        <div class="flow-node node-role" style="min-width:170px">
+          <div class="node-id">implementer</div>
+          <div class="node-title">Adapter 层</div>
+          <div class="node-desc">15 个 Swift/ObjC 文件<br>业务适配器</div>
+        </div>
+        <div class="kb-ref">
+          <div class="kb-label">知识库输入</div>
+          01-naming + adapter/01~12<br><span style="font-size:10px;color:#92400e">(全部 12 个适配器知识文件)</span>
+        </div>
+        <div class="kb-ref" style="border-color:#c4b5fd;background:#f5f3ff">
+          <div class="kb-label" style="color:#5b21b6">Prompt</div>
+          batch-b-implementer.md
+        </div>
+      </div>
+      <div class="branch-col">
+        <div class="branch-label">Batch C1</div>
+        <div class="flow-node node-role" style="min-width:170px">
+          <div class="node-id">implementer</div>
+          <div class="node-title">UI Base 层</div>
+          <div class="node-desc">13 个文件<br>Base VC + Views + Cells<br>注入 Batch B 类名</div>
+        </div>
+        <div class="kb-ref">
+          <div class="kb-label">知识库输入</div>
+          01-naming + ui/01~03<br><span style="font-size:10px;color:#92400e">(base-vc + views + cells)</span>
+        </div>
+        <div class="kb-ref" style="border-color:#c4b5fd;background:#f5f3ff">
+          <div class="kb-label" style="color:#5b21b6">Prompt</div>
+          batch-c1-implementer.md
+        </div>
+      </div>
+      <div class="branch-col">
+        <div class="branch-label">Batch C2</div>
+        <div class="flow-node node-role" style="min-width:170px">
+          <div class="node-id">implementer</div>
+          <div class="node-title">UI 业务页面</div>
+          <div class="node-desc">13 个文件<br>Home/Settings/Setup/...<br>注入 B + C1 类名</div>
+        </div>
+        <div class="kb-ref">
+          <div class="kb-label">知识库输入</div>
+          01-naming + ui/04~08<br><span style="font-size:10px;color:#92400e">(home + settings + setup + reset + demo)</span>
+        </div>
+        <div class="kb-ref" style="border-color:#c4b5fd;background:#f5f3ff">
+          <div class="kb-label" style="color:#5b21b6">Prompt</div>
+          batch-c2-implementer.md
+        </div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="2" height="16"><line x1="1" y1="0" x2="1" y2="16" stroke="#c4c4c4" stroke-width="1.5"/></svg></div>
+
+    <!-- 三种 Review 模式 -->
+    <div class="branch-group" data-label="Review 路径（按 Step 0 选择分支）">
+      <div class="branch-col">
+        <div class="branch-label">Mode 1: fast</div>
+        <div class="flow-node node-role" style="min-width:190px">
+          <div class="node-id">unified-reviewer</div>
+          <div class="node-title">统一核查（1 次）</div>
+          <div class="node-desc">4 Batch 全部完成后<br>单批规范 + 跨批一致性 + 目录结构<br>MAX_ROUNDS = 2</div>
+        </div>
+      </div>
+      <div class="branch-col">
+        <div class="branch-label">Mode 2: safe</div>
+        <div class="flow-node node-role" style="min-width:190px">
+          <div class="node-id">spec-reviewer × 4</div>
+          <div class="node-title">每批异步 Review</div>
+          <div class="node-desc">每 Batch 完成即 dispatch<br>A=2轮 / B=2 / C1=1 / C2=2</div>
+        </div>
+        <svg width="2" height="8"><line x1="1" y1="0" x2="1" y2="8" stroke="#c4c4c4" stroke-width="1.5"/></svg>
+        <div class="flow-node node-role" style="min-width:190px">
+          <div class="node-id">cross-batch-reviewer</div>
+          <div class="node-title">跨批一致性核查</div>
+          <div class="node-desc">符号引用 + 目录结构<br>+ 架构合规 + 命名规范</div>
+        </div>
+        <div class="kb-ref">
+          <div class="kb-label">知识库输入</div>
+          02-project-structure + README.md
+        </div>
+      </div>
+      <div class="branch-col">
+        <div class="branch-label">Mode 3: serial</div>
+        <div class="flow-node node-role" style="min-width:190px">
+          <div class="node-id">spec-reviewer × 4（串行）</div>
+          <div class="node-title">逐批 Review</div>
+          <div class="node-desc">A→review→B→review→C1→review→C2→review<br>后批注入前批已修正文件</div>
+        </div>
+        <svg width="2" height="8"><line x1="1" y1="0" x2="1" y2="8" stroke="#c4c4c4" stroke-width="1.5"/></svg>
+        <div class="flow-node node-role" style="min-width:190px">
+          <div class="node-id">cross-batch-reviewer</div>
+          <div class="node-title">跨批一致性核查</div>
+          <div class="node-desc">同 safe 模式</div>
+        </div>
+        <div class="kb-ref">
+          <div class="kb-label">知识库输入</div>
+          02-project-structure + README.md
+        </div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="2" height="12"><line x1="1" y1="0" x2="1" y2="12" stroke="#c4c4c4" stroke-width="1.5"/></svg></div>
+
+    <!-- 错误恢复 -->
+    <div class="flow-row">
+      <div class="flow-node node-error" style="max-width:600px">
+        <div class="node-id">错误恢复策略（阶段四）</div>
+        <div class="node-title">失败自动处理</div>
+        <div class="node-steps"><ul>
+          <li>Implementer 超时/崩溃 → 重试 1 次（缩减注入）；仍失败 → 标记 ❌</li>
+          <li>Implementer 输出为空 → 视同崩溃，重试</li>
+          <li>Reviewer 达轮数上限 → 标记 ⚠️，阶段五人工核验标注</li>
+          <li>Reviewer 自身失败 → 跳过该次核查，阶段五标注</li>
+          <li>任何 Batch ❌ → 阶段五人工核验自动变为必选</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <!-- Stage 5 -->
+    <div class="stage-marker">STAGE 5 — 人工全量核验</div>
+    <div class="flow-row">
+      <div class="flow-node node-decision">
+        <div class="node-id">阶段五</div>
+        <div class="node-title">需要人工核验？[y/N]</div>
+        <div class="node-desc">有 Batch ❌ 时 → 自动变为 [Y]（必选）<br>Y → 逐批列清单 + 知识库对照<br>N → 直接进入阶段六</div>
+      </div>
+    </div>
+
+    <!-- Stage 6 -->
+    <div class="stage-marker">STAGE 6 — 宿主集成 + 编译验证</div>
+    <div class="flow-row">
+      <div class="flow-node node-decision">
+        <div class="node-id">读 host_prep 状态</div>
+        <div class="node-title">三种状态路由</div>
+        <div class="node-steps"><ul>
+          <li>done → 注入 host_prep_done=true，跳过 Step 2/3a/4</li>
+          <li>failed → host_prep_done=false，走完整流程，告知用户失败原因</li>
+          <li>in_progress → 等待最多 60s；超时 → 按 failed 处理</li>
+        </ul></div>
+      </div>
+    </div>
+    <div class="connector"><svg width="2" height="16"><line x1="1" y1="0" x2="1" y2="16" stroke="#c4c4c4" stroke-width="1.5"/></svg></div>
+    <div class="flow-row">
+      <div class="flow-node">
+        <div class="node-id">用户配置</div>
+        <div class="node-title">Q1-Q3 宿主参数</div>
+        <div class="node-steps"><ul>
+          <li>Q1: 基于 develop / release 分支</li>
+          <li>Q2: Pod :path（默认）/ :git 引用</li>
+          <li>Q3: pod install 清理（direct / lock / full）</li>
+        </ul></div>
+      </div>
+      <div class="flow-node node-role">
+        <div class="node-id">Role</div>
+        <div class="node-title">host-integrator</div>
+        <div class="node-desc">插件 pod install → 宿主 Podfile →<br>deviceModel 注册 → pod install →<br>编译验证</div>
+      </div>
+    </div>
+    <div class="connector"><svg width="2" height="12"><line x1="1" y1="0" x2="1" y2="12" stroke="#c4c4c4" stroke-width="1.5"/></svg></div>
+    <div class="flow-row">
+      <div class="flow-node node-decision">
+        <div class="node-id">编译验证选择</div>
+        <div class="node-title">编译由谁执行？</div>
+        <div class="node-desc">用户自己跑（默认）→ 跳过 xcodebuild，编译标 ⏸️<br>AI 直接跑 → xcodebuild 验证，插件错误自动修复（最多 3 轮）</div>
+      </div>
+    </div>
+
+    <!-- Stage 7 -->
+    <div class="stage-marker">STAGE 7 — 项目专属 Orchestrations</div>
+    <div class="flow-row">
+      <div class="flow-node node-decision">
+        <div class="node-id">7.0 门禁</div>
+        <div class="node-title">SKILL_STAGE_DECISION</div>
+        <div class="node-desc">continue（仅 AI 编译且 BUILD SUCCEEDED）→ 7.1<br>skip → 自动跳过阶段七，进入阶段八</div>
+      </div>
+    </div>
+    <div class="connector"><svg width="2" height="12"><line x1="1" y1="0" x2="1" y2="12" stroke="#c4c4c4" stroke-width="1.5"/></svg></div>
+    <div class="flow-row">
+      <div class="flow-node node-decision">
+        <div class="node-id">7.1</div>
+        <div class="node-title">生成 Orchestrations？[Y/n]</div>
+        <div class="node-desc">Y → 进入 7.2 委托<br>n → 跳过阶段七</div>
+      </div>
+      <div class="flow-node node-skill">
+        <div class="node-id">7.2 Skill 委托</div>
+        <div class="node-title">wyze-orchestration-creator</div>
+        <div class="node-steps"><ul>
+          <li>入口：oc-batch-init</li>
+          <li>传入：batch_input（type/platform/meta/nodes/context_files）</li>
+          <li>执行：oc-batch-init → oc-scaffold → oc-validate → oc-finalize</li>
+          <li>处理：占位符替换 + 撞名检测 + 校验</li>
+        </ul></div>
+      </div>
+    </div>
+    <div class="connector"><svg width="2" height="12"><line x1="1" y1="0" x2="1" y2="12" stroke="#c4c4c4" stroke-width="1.5"/></svg></div>
+    <div class="flow-row">
+      <div class="flow-node node-decision">
+        <div class="node-id">7.3</div>
+        <div class="node-title">替换正确？[Y/n/修改说明]</div>
+        <div class="node-steps"><ul>
+          <li>Y → 进入阶段八</li>
+          <li>n → 删除已生成目录，跳过阶段七</li>
+          <li>修改说明 → 收集修改点，重新触发 oc-batch-init</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <!-- Stage 8 -->
+    <div class="stage-marker">STAGE 8 — 同步 &amp; 输出摘要</div>
+    <div class="flow-row">
+      <div class="flow-node node-decision" style="min-width:200px">
+        <div class="node-id">8.1 条件同步</div>
+        <div class="node-title">阶段七完成？</div>
+        <div class="node-desc">完成 → 执行 wyze-sync 同步两端<br>跳过/中止 → 无需同步</div>
+      </div>
+      <div class="flow-node node-end">
+        <div class="node-id">8.2</div>
+        <div class="node-title">工程创建完成摘要</div>
+        <div class="node-steps"><ul>
+          <li>Git 仓库 + 本地路径 + 分支</li>
+          <li>代码生成 N 个文件 + 各 Batch 修正明细</li>
+          <li>宿主集成状态（编译 ✅/⏸️）</li>
+          <li>Orchestrations 状态（已生成/已跳过）</li>
+          <li>下一步：open .xcworkspace</li>
+        </ul></div>
+      </div>
+    </div>
+    <div class="connector"><svg width="2" height="28"><line x1="1" y1="0" x2="1" y2="22" stroke="#c4c4c4" stroke-width="1.5"/><polygon points="-4,22 1,28 6,22" fill="#c4c4c4"/></svg></div>
+
+    <div class="flow-row">
+      <div class="flow-node">
+        <div class="node-id">贯穿全程</div>
+        <div class="node-title">.wpc-state.yaml</div>
+        <div class="node-desc">每阶段自动更新 → 跨 session 续做<br>status / last_phase / collected /<br>batch_progress / host_prep / review_mode</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var tabMap = {
+  'smart-lock': 'sec-smart-lock',
+  'kb-generator': 'sec-kb-generator',
+  'plugin-creation': 'sec-plugin-creation'
+};
+function switchTab(id, fromBtn) {
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.flow-section').forEach(sec => sec.classList.remove('active'));
+  document.getElementById(tabMap[id]).classList.add('active');
+  var btn = fromBtn || document.querySelector('.tab-btn[onclick*="' + id + '"]');
+  if (btn) btn.classList.add('active');
+}
+(function() {
+  var hash = location.hash.replace('#', '');
+  if (hash && tabMap[hash]) switchTab(hash);
+})()
+</script>
+
+</body>
+</html>

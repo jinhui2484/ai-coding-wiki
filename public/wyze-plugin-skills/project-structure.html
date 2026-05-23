@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>wyze-plugin-skills 架构图</title>
+<style>
+  :root {
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --text-1: #1a1a1a; --text-2: #6b6b6b; --text-3: #9e9e9e; --text-inv: #fff;
+    --bg-1: #fff; --bg-2: #f5f5f5; --border-1: #e5e5e5; --border-2: #d4d4d4;
+    --brand: #22c55e;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.06); --shadow-md: 0 4px 12px rgba(0,0,0,.1); --shadow-lg: 0 8px 30px rgba(0,0,0,.15);
+    --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 20px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:var(--font); background:var(--bg-2); color:var(--text-1); -webkit-font-smoothing:antialiased; }
+
+  /* Header */
+  .header { background:var(--bg-1); text-align:center; padding:36px 20px 28px; border-bottom:1px solid var(--border-1); }
+  .header h1 { font-size:24px; font-weight:600; }
+  .header h1 span { color:var(--brand); }
+  .header p { color:var(--text-2); font-size:13px; margin-top:4px; }
+
+  /* Views */
+  .view { display:none; max-width:1100px; margin:0 auto; padding:32px 20px 80px; }
+  .view.active { display:block; }
+
+  /* Back button */
+  .back-btn {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:6px 16px; border-radius:99px; border:1.5px solid var(--border-2);
+    background:var(--bg-1); color:var(--text-2); font-size:13px; font-weight:500;
+    cursor:pointer; transition:all .15s; margin-bottom:24px;
+  }
+  .back-btn:hover { border-color:var(--brand); color:var(--brand); }
+  .back-btn svg { width:14px; height:14px; }
+
+  /* ===== Overview ===== */
+  .arch-grid {
+    display:grid;
+    grid-template-columns: 1fr 2.4fr 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 16px;
+    align-items: start;
+  }
+  @media(max-width:900px) { .arch-grid { grid-template-columns:1fr; } }
+
+  .arch-card {
+    background:var(--bg-1); border-radius:var(--r-lg); border:2px solid var(--border-1);
+    padding:20px; cursor:pointer; transition:all .2s; position:relative; overflow:hidden;
+  }
+  .arch-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-lg); }
+  .arch-card::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:4px;
+  }
+  .arch-card .card-icon { font-size:28px; margin-bottom:8px; }
+  .arch-card .card-title { font-size:16px; font-weight:700; margin-bottom:2px; }
+  .arch-card .card-sub { font-size:12px; color:var(--text-2); margin-bottom:10px; }
+  .arch-card .card-count {
+    display:inline-block; padding:2px 10px; border-radius:99px;
+    font-size:11px; font-weight:700; color:var(--text-inv);
+  }
+  .arch-card .card-hint {
+    position:absolute; bottom:12px; right:16px;
+    font-size:11px; color:var(--text-3); font-weight:500;
+  }
+
+  /* Card colors */
+  .card-skill { border-color:#0e7490; }
+  .card-skill::before { background:#0e7490; }
+  .card-skill .card-title { color:#0e7490; }
+  .card-skill .card-count { background:#0e7490; }
+
+  .card-orch { border-color:#15803d; }
+  .card-orch::before { background:#15803d; }
+  .card-orch .card-title { color:#15803d; }
+  .card-orch .card-count { background:#15803d; }
+
+  .card-role { border-color:#5b21b6; }
+  .card-role::before { background:#5b21b6; }
+  .card-role .card-title { color:#5b21b6; }
+  .card-role .card-count { background:#5b21b6; }
+
+  .card-mcp { border-color:#1e40af; }
+  .card-mcp::before { background:#1e40af; }
+  .card-mcp .card-title { color:#1e40af; }
+  .card-mcp .card-count { background:#1e40af; }
+
+  .card-infra { border-color:#4b5563; }
+  .card-infra::before { background:#4b5563; }
+  .card-infra .card-title { color:#4b5563; }
+  .card-infra .card-count { background:#4b5563; }
+
+  .card-client { border-color:#d97706; }
+  .card-client::before { background:#d97706; }
+  .card-client .card-title { color:#d97706; }
+  .card-client .card-count { background:#d97706; }
+
+  /* Grid placement */
+  .g-infra { grid-column:1; grid-row:1/3; }
+  .g-skill { grid-column:2; grid-row:1; }
+  .g-orch  { grid-column:2; grid-row:2; }
+  .g-role  { grid-column:2; grid-row:3; }
+  .g-mcp   { grid-column:3; grid-row:1/3; }
+  .g-client { grid-column:1/4; grid-row:4; }
+
+  /* Arrows between layers */
+  .layer-arrow {
+    text-align:center; padding:4px 0; color:var(--text-3); font-size:18px; font-weight:300;
+    grid-column:2;
+  }
+  .layer-label { font-size:11px; color:var(--text-3); font-weight:500; display:block; }
+
+  /* Side arrows */
+  .side-label {
+    text-align:center; font-size:11px; color:var(--text-3); font-weight:500;
+    padding:6px 0;
+  }
+
+  /* ===== Detail views ===== */
+  .detail-title { font-size:20px; font-weight:600; margin-bottom:4px; }
+  .detail-desc { font-size:13px; color:var(--text-2); margin-bottom:24px; }
+
+  .detail-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:12px; }
+
+  .item-card {
+    background:var(--bg-1); border-radius:var(--r-md); padding:14px 16px;
+    border:1.5px solid var(--border-1); transition:all .15s;
+  }
+  .item-card:hover { border-color:var(--brand); box-shadow:var(--shadow-md); }
+  .item-card .item-icon { font-size:20px; margin-bottom:4px; }
+  .item-card .item-name { font-size:14px; font-weight:700; margin-bottom:2px; }
+  .item-card .item-desc { font-size:12px; color:var(--text-2); line-height:1.5; }
+  .item-card .item-meta {
+    margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;
+  }
+  .tag {
+    display:inline-block; padding:1px 8px; border-radius:99px;
+    font-size:10px; font-weight:600; border:1px solid;
+  }
+  .tag-ctx { color:#475569; border-color:#94a3b8; background:#f8fafc; }
+  .tag-node { color:#0e7490; border-color:#67e8f9; background:#ecfeff; }
+  .tag-asset { color:#166534; border-color:#86efac; background:#f0fdf4; }
+  .tag-kb { color:#854d0e; border-color:#fcd34d; background:#fefce8; }
+  .tag-prompt { color:#9d174d; border-color:#f9a8d4; background:#fdf2f8; }
+  .tag-file { color:#4b5563; border-color:#d1d5db; background:#f9fafb; }
+
+  /* Collapsible sections in detail */
+  .section-fold { margin:16px 0 0; }
+  .section-fold summary {
+    font-size:13px; font-weight:700; color:var(--text-2); text-transform:uppercase;
+    letter-spacing:.04em; padding:8px 0 6px;
+    border-bottom:1.5px solid var(--border-1);
+    cursor:pointer; list-style:none; display:flex; align-items:center; gap:6px;
+    user-select:none; transition:color .15s;
+  }
+  .section-fold summary:hover { color:var(--brand); }
+  .section-fold summary::before { content:'▶'; font-size:10px; transition:transform .2s; display:inline-block; }
+  .section-fold[open] summary::before { transform:rotate(90deg); }
+  .section-fold summary::-webkit-details-marker { display:none; }
+  .section-fold .detail-grid { margin-top:12px; }
+
+  /* Legacy section-head kept for non-collapsible cases */
+  .section-head {
+    font-size:13px; font-weight:700; color:var(--text-2); text-transform:uppercase;
+    letter-spacing:.04em; margin:24px 0 12px; padding-bottom:6px;
+    border-bottom:1.5px solid var(--border-1);
+  }
+
+  /* Relationship diagram in detail */
+  .rel-box {
+    background:var(--bg-1); border:1.5px solid var(--border-1); border-radius:var(--r-md);
+    padding:16px 20px; margin-bottom:24px;
+  }
+  .rel-box .rel-title { font-size:13px; font-weight:700; color:var(--text-2); margin-bottom:8px; }
+  .rel-flow {
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    font-size:13px; font-weight:500;
+  }
+  .rel-flow .rf-item {
+    padding:4px 12px; border-radius:var(--r-sm); font-weight:600;
+  }
+  .rel-flow .rf-arrow { color:var(--text-3); font-size:16px; }
+  .rf-skill { background:#cffafe; color:#0e7490; }
+  .rf-orch { background:#dcfce7; color:#15803d; }
+  .rf-role { background:#ede9fe; color:#5b21b6; }
+  .rf-mcp { background:#dbeafe; color:#1e40af; }
+
+  /* Skill detail modal */
+  .modal-overlay {
+    display:none; position:fixed; inset:0; z-index:1000;
+    background:rgba(0,0,0,.45); backdrop-filter:blur(4px);
+    justify-content:center; align-items:center; padding:20px;
+  }
+  .modal-overlay.open { display:flex; }
+  .modal-box {
+    background:var(--bg-1); border-radius:var(--r-xl); max-width:560px; width:100%;
+    max-height:85vh; overflow-y:auto; box-shadow:var(--shadow-lg);
+    animation:modalIn .2s ease;
+  }
+  @keyframes modalIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+  .modal-header {
+    display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+    padding:24px 24px 0;
+  }
+  .modal-header h3 { font-size:18px; font-weight:700; line-height:1.3; }
+  .modal-close {
+    width:32px; height:32px; border-radius:99px; border:1.5px solid var(--border-1);
+    background:var(--bg-2); cursor:pointer; font-size:16px; color:var(--text-2);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    transition:all .15s;
+  }
+  .modal-close:hover { border-color:var(--text-negative, #ef4444); color:#ef4444; }
+  .modal-body { padding:16px 24px 24px; }
+  .modal-body .md-section { margin-bottom:14px; }
+  .modal-body .md-label {
+    font-size:11px; font-weight:700; color:var(--text-3); text-transform:uppercase;
+    letter-spacing:.04em; margin-bottom:4px;
+  }
+  .modal-body .md-text { font-size:13px; color:var(--text-1); line-height:1.6; }
+  .modal-body .md-text li { list-style:none; padding-left:14px; position:relative; }
+  .modal-body .md-text li::before { content:'›'; position:absolute; left:0; color:var(--brand); font-weight:700; }
+  .modal-tags { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+  .modal-tag {
+    padding:2px 10px; border-radius:99px; font-size:11px; font-weight:600;
+    border:1px solid;
+  }
+  .mt-high { color:#15803d; border-color:#86efac; background:#f0fdf4; }
+  .mt-mid { color:#a16207; border-color:#fcd34d; background:#fefce8; }
+  .mt-low { color:#6b7280; border-color:#d1d5db; background:#f9fafb; }
+  .mt-good { color:#0e7490; border-color:#67e8f9; background:#ecfeff; }
+  .item-card[data-skill] { cursor:pointer; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1><span>wyze-plugin-skills</span> 架构图</h1>
+  <p>点击任意模块查看详细结构</p>
+</div>
+
+<!-- ===== OVERVIEW ===== -->
+<div class="view active" id="v-overview">
+  <div class="arch-grid">
+    <!-- Left: Infra -->
+    <div class="arch-card card-infra g-infra" onclick="go('infra')">
+      <div class="card-icon">⚙️</div>
+      <div class="card-title">基础设施</div>
+      <div class="card-sub">bin/ + install.sh + 配置模板</div>
+      <div class="card-count">6 文件</div>
+      <div style="margin-top:12px;font-size:12px;color:#4b5563;line-height:1.6">
+        wyze-sync<br>wyze-install<br>wyze-uninstall<br>
+        <span style="color:#9e9e9e">symlink 模型驱动</span>
+      </div>
+      <div class="card-hint">点击查看 →</div>
+    </div>
+
+    <!-- Center: Three layers -->
+    <div class="arch-card card-skill g-skill" onclick="go('skills')">
+      <div class="card-icon">🎯</div>
+      <div class="card-title">Skills — 单一对话能力</div>
+      <div class="card-sub">按 description 触发，一次对话完成一件事</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div class="card-count">17 Workflow</div>
+        <div class="card-count">9 公共业务</div>
+        <div class="card-count" style="background:#9333ea">2 私有</div>
+      </div>
+      <div class="card-hint">点击查看 →</div>
+    </div>
+
+    <div class="arch-card card-orch g-orch" onclick="go('orchestrations')">
+      <div class="card-icon">🎼</div>
+      <div class="card-title">Orchestrations — 多阶段工作流</div>
+      <div class="card-sub">含状态文件、fallback、多节点编排</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div class="card-count">2 公共</div>
+        <div class="card-count" style="background:#9333ea">1 私有</div>
+      </div>
+      <div class="card-hint">点击查看 →</div>
+    </div>
+
+    <div class="arch-card card-role g-role" onclick="go('roles')">
+      <div class="card-icon">👤</div>
+      <div class="card-title">Roles (Agents) — 通用执行单元</div>
+      <div class="card-sub">被 Skill / Orchestration 注入 context 调用</div>
+      <div class="card-count">6 个 Role</div>
+      <div class="card-hint">点击查看 →</div>
+    </div>
+
+    <!-- Right: MCP -->
+    <div class="arch-card card-mcp g-mcp" onclick="go('mcp')">
+      <div class="card-icon">🔗</div>
+      <div class="card-title">MCP Servers</div>
+      <div class="card-sub">MCP 协议服务，外部数据接入</div>
+      <div class="card-count">1 Server</div>
+      <div style="margin-top:12px;font-size:12px;color:#1e40af;line-height:1.6">
+        knowledge-rag-mcp<br>
+        <span style="color:#9e9e9e">Confluence + Jira + 本地文件<br>TF-IDF 搜索，30 分钟缓存</span>
+      </div>
+      <div class="card-hint">点击查看 →</div>
+    </div>
+
+    <!-- Bottom: Client -->
+    <div class="arch-card card-client g-client" onclick="go('client')">
+      <div class="card-icon">💻</div>
+      <div class="card-title">客户端部署（symlink 模型）</div>
+      <div class="card-sub">源头唯一 → symlink 到两端 → 改 source 立即生效</div>
+      <div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:8px;font-size:12px;line-height:1.6">
+        <div><strong style="color:#d97706">~/.claude/</strong><br>skills/ → symlink<br>mcp-servers → symlink<br>mcp-config.json → copy</div>
+        <div><strong style="color:#d97706">~/.copilot/</strong><br>skills/ → symlink<br>mcp-servers → symlink<br>mcp-config.json → copy</div>
+      </div>
+      <div class="card-hint">点击查看 →</div>
+    </div>
+  </div>
+
+  <!-- Relationship hint -->
+  <div class="rel-box" style="margin-top:24px">
+    <div class="rel-title">三层调用关系</div>
+    <div class="rel-flow">
+      <span class="rf-item rf-skill">Skill</span>
+      <span class="rf-arrow">→ 调用 →</span>
+      <span class="rf-item rf-role">Role</span>
+    </div>
+    <div class="rel-flow" style="margin-top:6px">
+      <span class="rf-item rf-orch">Orchestration</span>
+      <span class="rf-arrow">→ 编排 →</span>
+      <span class="rf-item rf-skill">Skill</span>
+      <span class="rf-arrow">+</span>
+      <span class="rf-item rf-role">Role</span>
+    </div>
+    <div class="rel-flow" style="margin-top:6px">
+      <span class="rf-item rf-skill">Skill</span>
+      <span class="rf-arrow">→ 查询 →</span>
+      <span class="rf-item rf-mcp">MCP Server</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SKILLS DETAIL ===== -->
+<div class="view" id="v-skills">
+  <div class="detail-title" style="color:#0e7490">🎯 Skills</div>
+  <div class="detail-desc">单一对话能力，按 SKILL.md 的 description 触发。分 Workflow、公共业务、私有三类。</div>
+
+  <div class="rel-box">
+    <div class="rel-title">内部结构约定</div>
+    <div class="rel-flow">
+      <span class="rf-item rf-skill">SKILL.md</span>
+      <span class="rf-arrow">+</span>
+      <span class="rf-item" style="background:#f8fafc;color:#475569">context/</span>
+      <span class="rf-arrow">+</span>
+      <span class="rf-item" style="background:#ecfeff;color:#0e7490">nodes/</span>
+      <span class="rf-arrow">+</span>
+      <span class="rf-item" style="background:#f0fdf4;color:#166534">assets/</span>
+    </div>
+  </div>
+
+  <details class="section-fold" open>
+  <summary>Workflow Skills（17 个）— skills/public/_workflow/</summary>
+  <div class="detail-grid">
+    <div class="item-card" data-skill="brainstorming" onclick="openSkill(this)"><div class="item-name">💡 brainstorming</div><div class="item-desc">需求澄清 + 头脑风暴</div></div>
+    <div class="item-card" data-skill="writing-plans" onclick="openSkill(this)"><div class="item-name">📋 writing-plans</div><div class="item-desc">拆分任务、编写实现计划</div></div>
+    <div class="item-card" data-skill="executing-plans" onclick="openSkill(this)"><div class="item-name">▶️ executing-plans</div><div class="item-desc">按计划逐步执行</div></div>
+    <div class="item-card" data-skill="subagent-driven-dev" onclick="openSkill(this)"><div class="item-name">🤖 subagent-driven-development</div><div class="item-desc">Subagent 驱动开发</div></div>
+    <div class="item-card" data-skill="tdd" onclick="openSkill(this)"><div class="item-name">🧪 test-driven-development</div><div class="item-desc">TDD 流程</div></div>
+    <div class="item-card" data-skill="systematic-debugging" onclick="openSkill(this)"><div class="item-name">🐛 systematic-debugging</div><div class="item-desc">系统化定位 Bug</div></div>
+    <div class="item-card" data-skill="verification" onclick="openSkill(this)"><div class="item-name">✅ verification-before-completion</div><div class="item-desc">完成前验证门禁</div></div>
+    <div class="item-card" data-skill="requesting-review" onclick="openSkill(this)"><div class="item-name">📤 requesting-code-review</div><div class="item-desc">发起 Code Review</div></div>
+    <div class="item-card" data-skill="receiving-review" onclick="openSkill(this)"><div class="item-name">📥 receiving-code-review</div><div class="item-desc">接收 Review 反馈并修复</div></div>
+    <div class="item-card" data-skill="finishing-branch" onclick="openSkill(this)"><div class="item-name">🏁 finishing-a-development-branch</div><div class="item-desc">PR 收尾全流程</div></div>
+    <div class="item-card" data-skill="checkpoint" onclick="openSkill(this)"><div class="item-name">💾 checkpoint</div><div class="item-desc">上下文保存 / 恢复</div></div>
+    <div class="item-card" data-skill="dispatching-agents" onclick="openSkill(this)"><div class="item-name">🚀 dispatching-parallel-agents</div><div class="item-desc">并行 Agent 调度</div></div>
+    <div class="item-card" data-skill="guard" onclick="openSkill(this)"><div class="item-name">🛡️ guard</div><div class="item-desc">流水线门禁校验</div></div>
+    <div class="item-card" data-skill="security-sweep" onclick="openSkill(this)"><div class="item-name">🔒 security-sweep</div><div class="item-desc">安全扫描</div></div>
+    <div class="item-card" data-skill="document-release" onclick="openSkill(this)"><div class="item-name">📝 document-release</div><div class="item-desc">文档发布</div></div>
+    <div class="item-card" data-skill="git-worktrees" onclick="openSkill(this)"><div class="item-name">🌳 using-git-worktrees</div><div class="item-desc">Git Worktree 隔离开发</div></div>
+    <div class="item-card" data-skill="using-superpowers" onclick="openSkill(this)"><div class="item-name">⚡ using-superpowers</div><div class="item-desc">Skill 索引与发现</div></div>
+    <div class="item-card" data-skill="writing-skills" onclick="openSkill(this)"><div class="item-name">✏️ writing-skills</div><div class="item-desc">编写新 Skill</div></div>
+  </div>
+  </details>
+
+  <details class="section-fold" open>
+  <summary>公共业务 Skills（9 个）— skills/public/</summary>
+  <div class="detail-grid">
+    <div class="item-card" data-skill="wyze-git" onclick="openSkill(this)">
+      <div class="item-name">🔧 wyze-git</div>
+      <div class="item-desc">Git 操作统一委托入口</div>
+      <div class="item-meta"><span class="tag tag-node">nodes × 9</span><span class="tag tag-file">git-workflow.md</span></div>
+    </div>
+    <div class="item-card" data-skill="wyze-jira" onclick="openSkill(this)">
+      <div class="item-name">🎫 wyze-jira</div>
+      <div class="item-desc">Jira Ticket 查询 + 预填参数</div>
+      <div class="item-meta"><span class="tag tag-node">nodes × 3</span><span class="tag tag-file">project-registry.md</span></div>
+    </div>
+    <div class="item-card" data-skill="wyze-figma-kb" onclick="openSkill(this)">
+      <div class="item-name">🎨 wyze-figma-kb</div>
+      <div class="item-desc">Figma 设计稿导出到知识库</div>
+      <div class="item-meta"><span class="tag tag-node">nodes × 7</span></div>
+    </div>
+    <div class="item-card" data-skill="wyze-orch-creator" onclick="openSkill(this)">
+      <div class="item-name">🏗️ wyze-orchestration-creator</div>
+      <div class="item-desc">Orchestration 生成器（批处理 + 交互）</div>
+      <div class="item-meta"><span class="tag tag-node">nodes × 9</span><span class="tag tag-ctx">context × 4</span><span class="tag tag-asset">assets</span></div>
+    </div>
+    <div class="item-card" data-skill="wyze-plugin-release" onclick="openSkill(this)">
+      <div class="item-name">🚢 wyze-plugin-release-ios</div>
+      <div class="item-desc">iOS 插件发版流程</div>
+    </div>
+    <div class="item-card" data-skill="wyze-skill-manager" onclick="openSkill(this)">
+      <div class="item-name">📦 wyze-skill-manager</div>
+      <div class="item-desc">Skill 增删改查管理</div>
+    </div>
+    <div class="item-card" data-skill="pdf-reader" onclick="openSkill(this)">
+      <div class="item-name">📖 pdf-reader</div>
+      <div class="item-desc">PDF 文件阅读</div>
+    </div>
+    <div class="item-card" data-skill="wyze-app-log" onclick="openSkill(this)">
+      <div class="item-name">📊 wyze-app-log-analysis</div>
+      <div class="item-desc">App 运行日志分析</div>
+    </div>
+  </div>
+  </details>
+
+  <details class="section-fold" open>
+  <summary>私有 Skills — skills/private/{email}/</summary>
+  <div class="detail-grid">
+    <div class="item-card" style="border-color:#9333ea">
+      <div class="item-name" style="color:#9333ea">（个人分支，不列入公共架构图）</div>
+      <div class="item-desc">每位成员的私有 Skill 存放在个人分支的 _workflow/ 和 _business/ 目录下。</div>
+    </div>
+  </div>
+  </details>
+</div>
+
+<!-- ===== ORCHESTRATIONS DETAIL ===== -->
+<div class="view" id="v-orchestrations">
+  <div class="detail-title" style="color:#15803d">🎼 Orchestrations</div>
+  <div class="detail-desc">多阶段、多入口工作流，含状态文件(.yaml)、fallback、quickstart。</div>
+
+  <div class="rel-box">
+    <div class="rel-title">内部结构约定</div>
+    <div class="rel-flow">
+      <span class="rf-item rf-orch">SKILL.md</span>
+      <span class="rf-arrow">+</span>
+      <span class="rf-item" style="background:#f8fafc;color:#475569">context/</span>
+      <span class="rf-arrow">+</span>
+      <span class="rf-item" style="background:#ecfeff;color:#0e7490">nodes/</span>
+      <span class="rf-arrow">+</span>
+      <span class="rf-item" style="background:#f0fdf4;color:#166534">assets/</span>
+      <span class="rf-arrow">+</span>
+      <span class="rf-item" style="background:#fefce8;color:#854d0e">knowledge/</span>
+      <span class="rf-arrow">+</span>
+      <span class="rf-item" style="background:#fdf2f8;color:#9d174d">prompts/</span>
+    </div>
+  </div>
+
+  <details class="section-fold" open>
+  <summary>公共 Orchestrations（2 个）</summary>
+  <div class="detail-grid">
+    <div class="item-card" style="border-color:#15803d;cursor:pointer" onclick="location.href='orchestration-flowchart.html#kb-generator'">
+      <div class="item-name" style="color:#15803d">📚 wyze-knowledge-base-generator</div>
+      <div class="item-desc">为 iOS/Android 项目生成与维护知识库</div>
+      <div class="item-meta"><span class="tag tag-node">nodes × 9</span><span class="tag tag-ctx">context × 4</span></div>
+    </div>
+    <div class="item-card" style="border-color:#15803d;cursor:pointer" onclick="location.href='orchestration-flowchart.html#plugin-creation'">
+      <div class="item-name" style="color:#15803d">🏭 wyze-plugin-creation</div>
+      <div class="item-desc">从零创建完整插件工程（知识驱动，8 阶段）</div>
+      <div class="item-meta"><span class="tag tag-kb">knowledge</span><span class="tag tag-prompt">prompts × 9</span></div>
+    </div>
+  </div>
+  </details>
+
+  <details class="section-fold" open>
+  <summary>私有 Orchestrations（1 个）</summary>
+  <div class="detail-grid">
+    <div class="item-card" style="border-color:#9333ea;cursor:pointer" onclick="location.href='orchestration-flowchart.html#smart-lock'">
+      <div class="item-name" style="color:#9333ea">🔑 wyze-smart-lock</div>
+      <div class="item-desc">多款智能门锁 iOS 开发（任务识别 → 代码 → PR）</div>
+      <div class="item-meta"><span class="tag tag-ctx">context × 7</span><span class="tag tag-node">nodes × 2</span></div>
+    </div>
+  </div>
+  </details>
+</div>
+
+<!-- ===== ROLES DETAIL ===== -->
+<div class="view" id="v-roles">
+  <div class="detail-title" style="color:#5b21b6">👤 Roles (Agents)</div>
+  <div class="detail-desc">通用执行单元，被 Skill / Orchestration 注入 context 后 dispatch。每个 Role 只有一个 ROLE.md。</div>
+
+  <div class="rel-box">
+    <div class="rel-title">谁调用 Role？</div>
+    <div class="rel-flow">
+      <span class="rf-item rf-orch">wyze-smart-lock</span>
+      <span class="rf-arrow">→</span>
+      <span class="rf-item rf-role">implementer / reviewer / kb-updater</span>
+    </div>
+    <div class="rel-flow" style="margin-top:6px">
+      <span class="rf-item rf-orch">wyze-plugin-creation</span>
+      <span class="rf-arrow">→</span>
+      <span class="rf-item rf-role">implementer / reviewer / host-integrator</span>
+    </div>
+  </div>
+
+  <div class="detail-grid">
+    <div class="item-card" style="border-color:#5b21b6">
+      <div class="item-name" style="color:#5b21b6">⚡ implementer</div>
+      <div class="item-desc">代码生成。接收 CODING_STANDARDS + PROJECT_INFO + KNOWLEDGE_FILES + TASK + TARGET_FILES，输出代码文件。</div>
+    </div>
+    <div class="item-card" style="border-color:#5b21b6">
+      <div class="item-name" style="color:#5b21b6">🔍 reviewer</div>
+      <div class="item-desc">代码审查。支持三种 MODE：spec（单批规范）/ unified（统一核查）/ cross-batch（跨批一致性）。MAX_ROUNDS 可配。</div>
+    </div>
+    <div class="item-card" style="border-color:#5b21b6">
+      <div class="item-name" style="color:#5b21b6">📝 kb-updater</div>
+      <div class="item-desc">知识库更新。接收 CHANGED_FILES + KB_FILES + KB_STANDARDS，按映射规则更新对应知识库文件。</div>
+    </div>
+    <div class="item-card" style="border-color:#5b21b6">
+      <div class="item-name" style="color:#5b21b6">🏠 host-integrator</div>
+      <div class="item-desc">宿主工程集成。处理 Podfile/Gradle 引用、deviceModel 注册、pod install、编译验证。</div>
+    </div>
+    <div class="item-card" style="border-color:#5b21b6">
+      <div class="item-name" style="color:#5b21b6">📡 dispatcher</div>
+      <div class="item-desc">任务分发。将复杂任务拆分并分配给合适的 Role 执行。</div>
+    </div>
+    <div class="item-card" style="border-color:#5b21b6">
+      <div class="item-name" style="color:#5b21b6">🎯 orchestrator</div>
+      <div class="item-desc">流程编排。管理多步骤任务的执行顺序和状态流转。</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MCP DETAIL ===== -->
+<div class="view" id="v-mcp">
+  <div class="detail-title" style="color:#1e40af">🔗 MCP Servers</div>
+  <div class="detail-desc">MCP 协议服务，为 Skill / Orchestration 提供外部数据源接入。</div>
+
+  <div class="detail-grid">
+    <div class="item-card" style="border-color:#1e40af;max-width:100%;grid-column:1/-1">
+      <div class="item-name" style="color:#1e40af">🔍 knowledge-rag-mcp</div>
+      <div class="item-desc" style="margin-bottom:12px">Node.js 实现的知识搜索服务，支持 stdio（默认）+ HTTP/SSE（团队共享）双模式。</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+        <div style="background:#f8fafc;padding:10px 14px;border-radius:8px;border:1px solid #e2e8f0">
+          <div style="font-size:12px;font-weight:700;color:#1e40af;margin-bottom:4px">三路数据源</div>
+          <div style="font-size:12px;color:#475569;line-height:1.6">
+            sources/confluence.js<br>sources/jira.js<br>sources/localfiles.js
+          </div>
+        </div>
+        <div style="background:#f8fafc;padding:10px 14px;border-radius:8px;border:1px solid #e2e8f0">
+          <div style="font-size:12px;font-weight:700;color:#1e40af;margin-bottom:4px">搜索引擎</div>
+          <div style="font-size:12px;color:#475569;line-height:1.6">
+            search.js — TF-IDF<br>标题权重 2×<br>无外部 AI 依赖
+          </div>
+        </div>
+        <div style="background:#f8fafc;padding:10px 14px;border-radius:8px;border:1px solid #e2e8f0">
+          <div style="font-size:12px;font-weight:700;color:#1e40af;margin-bottom:4px">工具</div>
+          <div style="font-size:12px;color:#475569;line-height:1.6">
+            search_recent_knowledge<br>list_recent_knowledge<br>缓存 30 分钟，按 days 隔离
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== INFRA DETAIL ===== -->
+<div class="view" id="v-infra">
+  <div class="detail-title" style="color:#4b5563">⚙️ 基础设施</div>
+  <div class="detail-desc">安装、同步、卸载三个脚本 + 配置模板。symlink 模型驱动，源头唯一。</div>
+
+  <details class="section-fold" open>
+  <summary>bin/ — CLI 工具</summary>
+  <div class="detail-grid">
+    <div class="item-card">
+      <div class="item-name">📄 wyze-common.sh</div>
+      <div class="item-desc">共用函数库。install_symlinks_to_clients / relink_skills_with_symlinks / relink_mcp_servers 核心函数。</div>
+    </div>
+    <div class="item-card">
+      <div class="item-name">📄 wyze-sync</div>
+      <div class="item-desc">同步命令。git pull/push + 重建客户端 symlink。<br><code>wyze-sync</code> 正向同步<br><code>wyze-sync other@wyze.com</code> 导入他人 skill</div>
+    </div>
+    <div class="item-card">
+      <div class="item-name">📄 wyze-uninstall</div>
+      <div class="item-desc">分级卸载。删 symlink，可选保留 private，可选删 mcp-config / 仓库。</div>
+    </div>
+  </div>
+  </details>
+
+  <details class="section-fold" open>
+  <summary>根文件</summary>
+  <div class="detail-grid">
+    <div class="item-card">
+      <div class="item-name">📄 install.sh</div>
+      <div class="item-desc">一键安装入口。依赖检查 → 建 symlink → 写 per-user 配置 → 装命令工具。重装用 wyze-install。</div>
+    </div>
+    <div class="item-card">
+      <div class="item-name">📄 mcp-config.template.json</div>
+      <div class="item-desc">MCP 配置模板。合并到 ~/.copilot 与 ~/.claude，per-user 含 API key。</div>
+    </div>
+    <div class="item-card">
+      <div class="item-name">📄 lsp-config.template.json</div>
+      <div class="item-desc">LSP（Language Server Protocol）配置模板。LSP 是一种让编辑器理解代码语义的协议 — 提供跳转定义、自动补全、错误提示等能力。此模板按选定语言生成对应的 LSP 配置，使 AI 编程工具获得与 IDE 相同的代码理解能力。</div>
+    </div>
+    <div class="item-card">
+      <div class="item-name">📄 CLAUDE.md</div>
+      <div class="item-desc">Claude Code 项目指令。结构、命令、约定。</div>
+    </div>
+  </div>
+  </details>
+</div>
+
+<!-- ===== CLIENT DETAIL ===== -->
+<div class="view" id="v-client">
+  <div class="detail-title" style="color:#d97706">💻 客户端部署</div>
+  <div class="detail-desc">symlink 模型 v2 — 源头唯一，客户端皆 symlink，改 source 立即生效。</div>
+
+  <div class="detail-grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+    <div class="item-card" style="border-color:#d97706">
+      <div class="item-name" style="color:#d97706">~/.claude/</div>
+      <div style="font-size:12px;color:#6b6b6b;line-height:2">
+        <div><strong>skills/*</strong> → symlink → source <span class="tag tag-file">30+ items</span></div>
+        <div><strong>mcp-servers</strong> → symlink → source <span class="tag tag-file">目录级</span></div>
+        <div><strong>mcp-config.json</strong> → copy <span class="tag" style="color:#d97706;border-color:#fbbf24;background:#fffbeb">含 API key</span></div>
+        <div><strong>lsp-config.json</strong> → copy <span class="tag tag-file">按语言生成</span></div>
+      </div>
+    </div>
+    <div class="item-card" style="border-color:#d97706">
+      <div class="item-name" style="color:#d97706">~/.copilot/</div>
+      <div style="font-size:12px;color:#6b6b6b;line-height:2">
+        <div><strong>skills/*</strong> → symlink → source <span class="tag tag-file">30+ items</span></div>
+        <div><strong>mcp-servers</strong> → symlink → source <span class="tag tag-file">目录级</span></div>
+        <div><strong>mcp-config.json</strong> → copy <span class="tag" style="color:#d97706;border-color:#fbbf24;background:#fffbeb">含 API key</span></div>
+        <div><strong>lsp-config.json</strong> → copy <span class="tag tag-file">按语言生成</span></div>
+        <div><strong>wyze-plugin-skills-state.json</strong> <span class="tag tag-file">用户配置</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rel-box" style="margin-top:20px">
+    <div class="rel-title">同步流程</div>
+    <div class="rel-flow">
+      <span class="rf-item" style="background:#f3f4f6;color:#4b5563">编辑 ~/wyze-plugin-skills/</span>
+      <span class="rf-arrow">→</span>
+      <span class="rf-item" style="background:#fef3c7;color:#92400e">wyze-sync</span>
+      <span class="rf-arrow">→</span>
+      <span class="rf-item" style="background:#dbeafe;color:#1e40af">GitHub + 两端 symlink</span>
+    </div>
+    <div style="font-size:11px;color:#9e9e9e;margin-top:6px">symlink 改源即生效，wyze-sync 主要负责 git push + 清理 dangling link</div>
+  </div>
+</div>
+
+<!-- Skill Detail Modal -->
+<div class="modal-overlay" id="skillModal" onclick="if(event.target===this)closeSkill()">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modal-title"></h3>
+      <button class="modal-close" onclick="closeSkill()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('v-' + id).classList.add('active');
+  history.pushState({view: id}, '', '#' + id);
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+window.addEventListener('popstate', function(e) {
+  var id = (e.state && e.state.view) || 'overview';
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('v-' + id).classList.add('active');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+});
+(function() {
+  var hash = location.hash.replace('#', '');
+  if (hash && document.getElementById('v-' + hash)) {
+    history.replaceState({view: hash}, '', '#' + hash);
+    go(hash);
+  } else {
+    history.replaceState({view: 'overview'}, '', location.pathname);
+  }
+})()
+
+var SKILLS = {
+  'brainstorming': {
+    title: '💡 brainstorming',
+    what: '在写代码之前，通过对话探索用户意图、梳理需求、设计方案。一次只问一个问题，逐步把模糊想法变成可执行的设计规格。',
+    abilities: ['逐步引导式需求澄清', '方案对比与权衡分析', '输出可交付的设计文档 / spec'],
+    wyze: '高',
+    wyzeNote: '所有新功能、新插件、架构调整前的必经环节，避免写完才发现方向错',
+    completeness: '完整',
+    compNote: '独立可用，是流水线 Phase 1 的入口 Skill'
+  },
+  'writing-plans': {
+    title: '📋 writing-plans',
+    what: '将需求或 spec 拆分成可执行的多步骤实现计划。输出结构化 plan 文件，含任务列表、依赖关系、验收标准。',
+    abilities: ['自动分析代码库现状', '按依赖排序拆分子任务', '生成带 checkbox 的 plan 文件'],
+    wyze: '高',
+    wyzeNote: '多步骤任务强制要求先有 plan，是"无计划不实现"门禁的执行者',
+    completeness: '完整',
+    compNote: '独立可用，支持断点续做'
+  },
+  'executing-plans': {
+    title: '▶️ executing-plans',
+    what: '在独立 session 中按 plan 逐步执行实现，每步完成后有 review checkpoint，确保不偏离计划。',
+    abilities: ['按 plan 逐步执行', '每步自动验证 + review 门禁', '支持跨 session 继续'],
+    wyze: '高',
+    wyzeNote: '配合 writing-plans 使用，确保长任务可控推进',
+    completeness: '完整',
+    compNote: '需要先有 plan 文件作为输入'
+  },
+  'subagent-driven-dev': {
+    title: '🤖 subagent-driven-development',
+    what: '将 plan 中的独立子任务分发给多个 subagent 并行执行，显著缩短总实现时间。',
+    abilities: ['自动识别可并行的任务', '并行 dispatch 多个 subagent', '收集结果 + 冲突检测'],
+    wyze: '高',
+    wyzeNote: '插件创建中 4 个 Batch 并行生成就是此模式的实际应用',
+    completeness: '完整',
+    compNote: '流水线 Phase 3 的主力执行方式'
+  },
+  'tdd': {
+    title: '🧪 test-driven-development',
+    what: '严格 TDD 流程：先写测试、再写实现、最后重构。确保每个功能点都有测试覆盖。',
+    abilities: ['自动生成测试用例', '红-绿-重构循环', '测试覆盖率检查'],
+    wyze: '中',
+    wyzeNote: 'iOS 插件项目测试覆盖偏低，适合逐步引入；SDK 层更适用',
+    completeness: '完整',
+    compNote: '独立可用，"无测试不提交"门禁的执行者'
+  },
+  'systematic-debugging': {
+    title: '🐛 systematic-debugging',
+    what: '遇到 Bug 时系统化定位根因：收集证据 → 形成假设 → 验证 → 修复，不靠猜测。',
+    abilities: ['日志/崩溃栈分析', '二分法定位', '根因验证后才修复'],
+    wyze: '高',
+    wyzeNote: 'IoT 设备绑定、蓝牙连接等问题场景高度适用',
+    completeness: '完整',
+    compNote: '流水线中 Bug 修复类任务的强制入口'
+  },
+  'verification': {
+    title: '✅ verification-before-completion',
+    what: '在宣称"完成"之前，强制运行验证命令并确认输出。证据优先，不允许空口声明通过。',
+    abilities: ['自动执行测试/编译/lint', '对比预期 vs 实际输出', '未通过则阻止提交'],
+    wyze: '高',
+    wyzeNote: '所有开发任务完成前的必经门禁',
+    completeness: '完整',
+    compNote: '流水线 Phase 4 的第一步'
+  },
+  'requesting-review': {
+    title: '📤 requesting-code-review',
+    what: '代码完成后发起结构化 Code Review：自动生成 review 清单、标注关键变更点、整理上下文。',
+    abilities: ['自动 diff 分析', '生成 review 要点清单', '标注风险区域'],
+    wyze: '高',
+    wyzeNote: '"无审查不合并"门禁的执行者',
+    completeness: '完整',
+    compNote: '流水线 Phase 4 的第二步'
+  },
+  'receiving-review': {
+    title: '📥 receiving-code-review',
+    what: '收到 review 反馈后，逐条技术验证而非盲目接受。不清楚的反馈先求证再改。',
+    abilities: ['逐条验证 reviewer 建议', '区分正确/错误/模糊反馈', '修复后重跑验证'],
+    wyze: '中',
+    wyzeNote: '团队 review 文化中避免"表演性同意"，适合新人学习',
+    completeness: '完整',
+    compNote: '独立可用'
+  },
+  'finishing-branch': {
+    title: '🏁 finishing-a-development-branch',
+    what: '开发完成后的 PR 收尾全流程：选择集成方式（merge/squash/rebase）、清理分支、更新状态。',
+    abilities: ['自动检测分支状态', '引导选择集成策略', 'PR 创建 + 分支清理'],
+    wyze: '高',
+    wyzeNote: '所有开发分支收尾的统一出口，被 smart-lock 等 Orchestration 委托调用',
+    completeness: '完整',
+    compNote: '流水线最后一步'
+  },
+  'checkpoint': {
+    title: '💾 checkpoint',
+    what: '跨 session 进度保存与恢复。将 git 状态、决策记录、剩余任务以 WIP commit 持久化，新 session 调用 /resume 恢复。',
+    abilities: ['自动保存当前上下文到 WIP commit', '恢复时重建完整工作状态', '支持多个 checkpoint 切换'],
+    wyze: '高',
+    wyzeNote: '长任务（如插件创建 8 阶段）中断后恢复的关键基础设施',
+    completeness: '完整',
+    compNote: '独立可用'
+  },
+  'dispatching-agents': {
+    title: '🚀 dispatching-parallel-agents',
+    what: '识别 2+ 个无依赖的独立任务，并行 dispatch 给多个 agent 同时执行。',
+    abilities: ['自动判断任务可并行性', '并行 dispatch + 进度追踪', '结果汇总 + 冲突检测'],
+    wyze: '中',
+    wyzeNote: '大规模重构或跨模块修改时提速明显',
+    completeness: '完整',
+    compNote: '独立可用，被 subagent-driven-dev 底层调用'
+  },
+  'guard': {
+    title: '🛡️ guard',
+    what: '安全保护模式：执行破坏性命令前强制警告，编辑范围锁定到指定目录，防止误操作。',
+    abilities: ['破坏性命令拦截 + 二次确认', '编辑范围锁定（只改指定模块）', '操作审计日志'],
+    wyze: '高',
+    wyzeNote: '调试生产代码、IoT SDK、Lock 插件时必开，防止误改其他模块',
+    completeness: '完整',
+    compNote: '独立可用，可叠加在任何任务上'
+  },
+  'security-sweep': {
+    title: '🔒 security-sweep',
+    what: '扫描代码库的安全漏洞：硬编码密钥、注入缺陷、错误配置、攻击面。',
+    abilities: ['OWASP Top 10 检查', '硬编码 secret 检测', '依赖漏洞扫描', '输出修复建议'],
+    wyze: '中',
+    wyzeNote: 'IoT 设备通信、蓝牙配对等安全敏感场景适用',
+    completeness: '完整',
+    compNote: '独立可用，可作为 PR 前置检查'
+  },
+  'document-release': {
+    title: '📝 document-release',
+    what: '分析 git log 和 PR 描述，自动生成结构化 Release Notes，支持写入 Confluence 或本地 CHANGELOG。',
+    abilities: ['自动分析 commit / PR 变更', '生成 Breaking Changes + 迁移指引', '输出到 Confluence 或 CHANGELOG.md'],
+    wyze: '高',
+    wyzeNote: '插件发版时的标准流程，配合 wyze-plugin-release-ios 使用',
+    completeness: '完整',
+    compNote: '独立可用'
+  },
+  'git-worktrees': {
+    title: '🌳 using-git-worktrees',
+    what: '创建隔离的 git worktree 进行特性开发，不影响当前工作区。带安全验证和智能目录选择。',
+    abilities: ['一键创建隔离 worktree', '自动检测安全冲突', '完成后清理 worktree'],
+    wyze: '低',
+    wyzeNote: '当前 CLAUDE.md 已禁用自动创建分支/worktree，需用户明确指定时才使用',
+    completeness: '完整',
+    compNote: '独立可用，但受全局规则限制'
+  },
+  'using-superpowers': {
+    title: '⚡ using-superpowers',
+    what: 'Skill 索引与发现工具。帮助查找和使用已安装的 skill，列出可用能力清单。',
+    abilities: ['列出全部已安装 skill', '按关键词搜索匹配', '展示 skill 触发词和用法'],
+    wyze: '中',
+    wyzeNote: '新成员上手时了解可用能力的入口',
+    completeness: '完整',
+    compNote: '独立可用'
+  },
+  'writing-skills': {
+    title: '✏️ writing-skills',
+    what: '引导创建新 Skill：生成 SKILL.md 骨架、设置 frontmatter、创建 context/nodes/assets 目录结构。',
+    abilities: ['交互式引导填写 Skill 元信息', '自动生成目录结构和模板文件', '部署前校验'],
+    wyze: '高',
+    wyzeNote: '团队扩展 AI 能力的核心工具，所有新 Skill 都通过它创建',
+    completeness: '完整',
+    compNote: '独立可用'
+  },
+  'wyze-git': {
+    title: '🔧 wyze-git',
+    what: '通用 Git 操作统一入口。自动检测仓库，路由到 9 类操作节点（分支/push/pull/merge/cherry-pick/回滚/tag/stash/log），破坏性操作需二次确认。',
+    abilities: ['9 类 git 操作全覆盖', '安全预检 + 破坏性操作二次确认', '自动检测当前仓库路径', '被其他 Skill/Orchestration 委托调用'],
+    wyze: '高',
+    wyzeNote: 'smart-lock、plugin-creation 等所有 Orchestration 的 Git 操作都委托给它',
+    completeness: '完整',
+    compNote: '9 个 nodes，成熟稳定'
+  },
+  'wyze-jira': {
+    title: '🎫 wyze-jira',
+    what: '输入 Jira Key 或 URL 后拉取 ticket + 评论，输出综合分析。已注册项目走知识库加速，未注册走通用代码探索。用户确认后才进入开发。',
+    abilities: ['Jira ticket 解析 + 评论汇总', '综合分析结论输出', '按项目注册状态路由（知识库加速 / 通用探索）', '自动预填开发参数'],
+    wyze: '高',
+    wyzeNote: '全团队适用，已注册的插件项目会自动加载对应知识库加速开发',
+    completeness: '完整',
+    compNote: '3 个 nodes + project-registry.md 项目注册表'
+  },
+  'wyze-figma-kb': {
+    title: '🎨 wyze-figma-kb',
+    what: '分析 Figma 设计稿，将 UI 结构、跳转关系、组件规范汇总成平台专属（iOS/Android/Web）知识库 .md 文件。支持纯 Figma URL、纯代码路径、混合三种模式。',
+    abilities: ['Figma URL 解析 + 组件提取', '生成平台专属知识库 .md', '支持同步到 Confluence', '默认先轻量分析，确认后才生成文件'],
+    wyze: '高',
+    wyzeNote: 'smart-lock 的 Figma 导出节点直接委托此 Skill，设计到开发的关键桥梁',
+    completeness: '完整',
+    compNote: '7 个 nodes，支持三种输入模式'
+  },
+  'wyze-orch-creator': {
+    title: '🏗️ wyze-orchestration-creator',
+    what: '引导创建新的 Orchestration（iOS/Android/跨平台/功能型）。对话引导或批处理两种入口，收集元信息后生成目录骨架。',
+    abilities: ['对话引导式创建', '批处理一键生成', '占位符替换 + 撞名检测 + 校验', '支持 .oc-state.yaml 跨 session 续做'],
+    wyze: '高',
+    wyzeNote: 'plugin-creation 阶段七就委托此 Skill 生成项目专属 Orchestration',
+    completeness: '完整',
+    compNote: '9 个 nodes + 4 个 context + assets 模板'
+  },
+  'wyze-plugin-release': {
+    title: '🚢 wyze-plugin-release-ios',
+    what: '给 iOS 插件打 tag、推送 podspec 到 Spec 仓库，完成版本发布。内置 19 个插件的名称 → 目录/specFile 映射表。',
+    abilities: ['自动提取 pluginName/tag/specRepo 参数', '执行 git tag + pod spec push', '内置 19 个插件映射表'],
+    wyze: '高',
+    wyzeNote: 'iOS 插件发版的标准工具，覆盖全部 19 个插件',
+    completeness: '完整',
+    compNote: '独立可用，映射表需随新插件更新'
+  },
+  'wyze-skill-manager': {
+    title: '📦 wyze-skill-manager',
+    what: 'Skill 生命周期管理：安装、同步、继承他人 Skill、卸载。基于 symlink 模型，仓库是唯一源头。',
+    abilities: ['4 类操作路由（安装/同步/导入他人/卸载）', 'symlink 双端同步（~/.claude + ~/.copilot）', '导入他人 skill 时记录 inherit_commit'],
+    wyze: '高',
+    wyzeNote: '团队 Skill 共享的基础设施，wyze-sync 命令的交互版入口',
+    completeness: '完整',
+    compNote: '独立可用'
+  },
+  'pdf-reader': {
+    title: '📖 pdf-reader',
+    what: '解析 PDF 文件，提取文本、元数据和指定页码内容。支持本地路径和远程 URL。',
+    abilities: ['全文 / 指定页读取', '元数据提取', '结构化摘要生成', '支持本地文件和 HTTP URL'],
+    wyze: '中',
+    wyzeNote: '查阅 Apple 文档、SDK 规范、技术论文时使用',
+    completeness: '完整',
+    compNote: '依赖 read_pdf MCP 工具'
+  },
+  'wyze-app-log': {
+    title: '📊 wyze-app-log-analysis',
+    what: '移动端日志智能诊断：分析 iOS/Android 日志、崩溃栈、控制台输出与设备绑定日志。自动区分平台，优先排查高优先级致命异常。',
+    abilities: ['自动识别 iOS/Android 平台', '崩溃栈 + ANR + 异常分析', '按优先级排查（致命 > 错误 > 警告）', '要求日志原文作为证据，不误判噪音'],
+    wyze: '高',
+    wyzeNote: 'IoT 设备绑定失败、蓝牙连接异常、崩溃排查的首选工具',
+    completeness: '完整',
+    compNote: '独立可用'
+  }
+};
+
+function openSkill(el) {
+  var key = el.getAttribute('data-skill');
+  var s = SKILLS[key];
+  if (!s) return;
+  document.getElementById('modal-title').textContent = s.title;
+  var wyzeClass = s.wyze === '高' ? 'mt-high' : s.wyze === '中' ? 'mt-mid' : 'mt-low';
+  var html = '<div class="md-section"><div class="md-label">功能说明</div><div class="md-text">' + s.what + '</div></div>';
+  html += '<div class="md-section"><div class="md-label">核心能力</div><div class="md-text"><ul>' + s.abilities.map(function(a){ return '<li>' + a + '</li>'; }).join('') + '</ul></div></div>';
+  html += '<div class="md-section"><div class="md-label">Wyze 团队适用性</div><div class="modal-tags"><span class="modal-tag ' + wyzeClass + '">' + s.wyze + '</span></div><div class="md-text" style="margin-top:4px">' + s.wyzeNote + '</div></div>';
+  html += '<div class="md-section"><div class="md-label">Skill 完整性</div><div class="modal-tags"><span class="modal-tag mt-good">' + s.completeness + '</span></div><div class="md-text" style="margin-top:4px">' + s.compNote + '</div></div>';
+  document.getElementById('modal-body').innerHTML = html;
+  document.getElementById('skillModal').classList.add('open');
+}
+
+function closeSkill() {
+  document.getElementById('skillModal').classList.remove('open');
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeSkill();
+});
+</script>
+
+</body>
+</html>
