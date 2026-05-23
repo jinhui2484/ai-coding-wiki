@@ -2,11 +2,9 @@
 
 从工具到原理，系统梳理 AI 编程的核心知识体系。
 
-**线上地址：** [https://jinhui324.github.io/claude-docs/](https://jinhui324.github.io/claude-docs/)
+**线上地址：** [https://jinhui2484.github.io/ai-coding-wiki/](https://jinhui2484.github.io/ai-coding-wiki/)
 
-**源码仓库：**
-- GitHub：[https://github.com/Jinhui324/claude-docs](https://github.com/Jinhui324/claude-docs)
-- Gitee：[https://gitee.com/jinhuizhang/claude-docs](https://gitee.com/jinhuizhang/claude-docs)
+**源码仓库：** [https://github.com/jinhui2484/ai-coding-wiki](https://github.com/jinhui2484/ai-coding-wiki)
 
 ---
 
@@ -16,7 +14,7 @@
 |------|------|------|
 | 🛠️ AI 工具 | `tools/` | Cursor、GitHub Copilot、Claude Code、Codex CLI 介绍 + 四工具命令对照表 |
 | 🧩 AI 核心机制 | `core/` | Agent、MCP、LSP、Skills、Prompt、RAG、Function Calling、Embedding |
-| 📚 AI 进阶 | `advanced/` | 本地模型部署、模型微调、行业动态、精选文章 |
+| 📚 AI 进阶 | `advanced/` | 本地模型部署、模型微调、行业动态、精选文章、项目分析 |
 
 ---
 
@@ -46,13 +44,9 @@ npm run build
 
 ## 部署
 
-推送 `main` 分支即自动部署：
+推送 `main` 分支即自动部署（GitHub Actions → GitHub Pages）：
 
 ```bash
-# 部署到 GitHub Pages（自动触发 GitHub Actions）
-git push github main
-
-# 同步代码到 Gitee
 git push origin main
 ```
 
@@ -61,12 +55,12 @@ git push origin main
 ## 目录结构
 
 ```
-claude-docs/
+ai-coding-wiki/
 ├── .vitepress/
 │   ├── config.ts              # 站点配置（导航、侧边栏）
 │   └── theme/
 │       ├── index.ts           # 主题入口
-│       └── style.css          # 自定义样式（青色品牌色）
+│       └── style.css          # 自定义样式（深青蓝品牌色）
 ├── tools/                     # 🛠️ AI 工具
 │   ├── commands.md            # 四工具命令对照表
 │   ├── cursor/intro.md        # Cursor 使用指南
@@ -84,7 +78,8 @@ claude-docs/
 │   └── embedding.md           # Embedding
 ├── advanced/                  # 📚 AI 进阶
 │   ├── lab/                   # 实验室（本地部署、模型微调）
-│   └── insights/              # 洞察（行业动态、精选文章）
+│   ├── insights/              # 洞察（行业动态、精选文章、项目分析）
+│   └── growth/                # 成长（复盘记录）
 └── index.md                   # 首页
 ```
 

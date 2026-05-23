@@ -168,7 +168,7 @@ hero:
 <summary>
   <span class="node-icon">📚</span>
   <span class="node-title">AI 进阶</span>
-  <span class="node-badge">5 篇</span>
+  <span class="node-badge">7 篇</span>
 </summary>
 <div class="tree-children">
   <details class="tree-node sub">
@@ -186,7 +186,7 @@ hero:
   </details>
 
   <details class="tree-node sub">
-  <summary><span class="node-title">AI 洞察</span><span class="node-desc">🔭 观察员 — 追踪行业趋势与优质内容</span><span class="node-badge">3 篇</span></summary>
+  <summary><span class="node-title">AI 洞察</span><span class="node-desc">🔭 观察员 — 追踪行业趋势与优质内容</span><span class="node-badge">5 篇</span></summary>
   <div class="tree-children">
     <a class="tree-leaf" href="./advanced/insights/trends">
       <span class="leaf-title">行业动态</span>
@@ -199,6 +199,14 @@ hero:
     <a class="tree-leaf" href="./advanced/insights/tech-platforms">
       <span class="leaf-title">技术内容平台</span>
       <span class="leaf-desc">视频 / 文章 / 论文 / 播客平台全景对比与 MCP 抓取方案</span>
+    </a>
+    <a class="tree-leaf" href="./advanced/insights/ai-coding-ok-analysis">
+      <span class="leaf-title">ai-coding-ok 项目分析</span>
+      <span class="leaf-desc">拆解 PDCA 记忆闭环，并延展到 wyze-plugin-skills 的优化路线</span>
+    </a>
+    <a class="tree-leaf" href="./advanced/insights/codex-deepseek-analysis">
+      <span class="leaf-title">Codex × DeepSeek Installer 分析</span>
+      <span class="leaf-desc">解析一键安装器、本地代理协议转换与多模型适配思路</span>
     </a>
   </div>
   </details>
@@ -334,7 +342,7 @@ hero:
 }
 
 .tree-node summary:hover {
-  background: rgba(26, 160, 154, 0.04);
+  background: rgba(12, 45, 63, 0.04);
 }
 
 .node-icon {
@@ -362,8 +370,8 @@ hero:
   font-weight: 500;
   padding: 2px 10px;
   border-radius: 20px;
-  background: rgba(26, 160, 154, 0.1);
-  color: #1aa09a;
+  background: rgba(12, 45, 63, 0.1);
+  color: #0c2d3f;
   margin-left: auto;
 }
 
@@ -404,13 +412,13 @@ hero:
   transform: translateY(-50%);
   width: 3px;
   height: 0;
-  background: #1aa09a;
+  background: #0c2d3f;
   border-radius: 2px;
   transition: height 0.2s;
 }
 
 .tree-leaf:hover {
-  background: rgba(26, 160, 154, 0.06);
+  background: rgba(12, 45, 63, 0.06);
   transform: translateX(4px);
 }
 
