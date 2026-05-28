@@ -50,6 +50,7 @@ export default withMermaid(defineConfig({
               { text: 'Agent 概念与原理', link: '/core/agent/agent-intro' },
               { text: 'Agent 实战开发', link: '/core/agent/agent-create' },
               { text: '多 Agent 协作', link: '/core/agent/multi-agent' },
+              { text: '8 种记忆策略', link: '/core/agent/agent-memory' },
             ]
           },
           {
@@ -156,6 +157,7 @@ export default withMermaid(defineConfig({
           { text: 'Agent 概念与原理', link: '/core/agent/agent-intro' },
           { text: 'Agent 实战开发', link: '/core/agent/agent-create' },
           { text: '多 Agent 协作', link: '/core/agent/multi-agent' },
+          { text: '8 种记忆策略', link: '/core/agent/agent-memory' },
         ]
       },
       {
